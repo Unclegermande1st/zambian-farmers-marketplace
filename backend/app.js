@@ -13,6 +13,13 @@ app.use(morgan('combined'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Routes
+const authRoutes = require('./routes/auth');
+const userRoutes = require('./routes/userRoutes'); //  Import userRoutes.js
+
+app.use('/api/auth', authRoutes);
+app.use('/api/user', userRoutes); // Mount protected routes
+
 // Test route
 app.get('/', (req, res) => {
   res.json({ 
