@@ -1,7 +1,4 @@
-// src/components/LoginForm.js
 import React, { useState } from 'react';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../firebaseConfig';
 
 const LoginForm = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
@@ -19,18 +16,23 @@ const LoginForm = () => {
     setMessage('');
 
     try {
-      await signInWithEmailAndPassword(auth, formData.email, formData.password);
-      setMessage('✅ Login successful!');
-      // No localStorage or manual role fetching — App.tsx handles everything via onAuthStateChanged
-    } catch (error) {
-      const errorMsg =
-        error.code === 'auth/user-not-found'
-          ? 'User not found.'
-          : error.code === 'auth/wrong-password'
-          ? 'Incorrect password.'
-          : error.message;
+      const res = await fetch("http://localhost:5000/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
 
-      setMessage(`❌ Login failed: ${errorMsg}`);
+      const data = await res.json();
+
+      if (res.ok) {
+        setMessage(`✅ Welcome back! Role: ${data.role}`);
+        // Store role locally if needed
+        localStorage.setItem("role", data.role);
+      } else {
+        setMessage(`❌ Login failed: ${data.error}`);
+      }
+    } catch (error) {
+      setMessage(`❌ Login failed: ${error.message}`);
     } finally {
       setLoading(false);
     }
