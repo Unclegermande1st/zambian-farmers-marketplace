@@ -1,8 +1,4 @@
-// src/components/RegisterForm.js
 import React, { useState } from 'react';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
-import { auth, db } from '../firebaseConfig';
 
 const RegisterForm = () => {
   const [formData, setFormData] = useState({
@@ -25,28 +21,21 @@ const RegisterForm = () => {
     setMessage('');
 
     try {
-      // 1. Create user in Firebase Auth
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        formData.email,
-        formData.password
-      );
-      const user = userCredential.user;
-
-      // 2. Store additional user info in Firestore
-      await setDoc(doc(db, 'users', user.uid), {
-        name: formData.name,
-        email: formData.email,
-        role: formData.role,
+      const res = await fetch("http://localhost:5000/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
       });
 
-      setMessage('✅ Registration successful! You can now log in.');
+      const data = await res.json();
+
+      if (res.ok) {
+        setMessage('✅ Registration successful! You can now log in.');
+      } else {
+        setMessage(`❌ ${data.error}`);
+      }
     } catch (error) {
-      const errorMsg =
-        error.code === 'auth/email-already-in-use'
-          ? 'Email is already in use.'
-          : error.message;
-      setMessage(`❌ ${errorMsg}`);
+      setMessage(`❌ ${error.message}`);
     } finally {
       setLoading(false);
     }

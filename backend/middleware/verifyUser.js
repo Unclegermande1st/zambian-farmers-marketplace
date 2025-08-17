@@ -1,35 +1,31 @@
-const jwt = require('jsonwebtoken');
-const db = require('../database');
+// backend/middleware/verifyUser.js
 
-const verifyUser = (req, res, next) => {
-  const token = req.cookies.token;
+const { auth, admin } = require('../firebase/firebaseAdmin'); // Import Firebase Admin SDK
+const db = admin.firestore(); // Initialize Firestore
 
-  if (!token) {
-    return res.status(401).json({ error: 'Unauthorized: No token provided' });
+module.exports = async (req, res, next) => {
+  try {
+    const header = req.headers.authorization;
+    if (!header) {
+      return res.status(401).json({ message: 'No token provided' });
+    }
+
+    const token = header.split(' ')[1]; // Get the Bearer token
+    const decodedToken = await auth.verifyIdToken(token); // Verify the ID token
+
+    // Fetch user data from Firestore
+    const userDoc = await db.collection('users').doc(decodedToken.uid).get();
+
+    if (!userDoc.exists) {
+      return res.status(404).json({ message: 'User profile not found' });
+    }
+
+    // Attach user data to the request object
+    req.user = { uid: decodedToken.uid, ...userDoc.data() };
+
+    next();
+  } catch (error) {
+    console.error('Token verification failed:', error.message);
+    res.status(401).json({ message: 'Invalid or expired token' });
   }
-
-  jwt.verify(token, process.env.JWT_SECRET, async (err, decoded) => {
-    if (err) {
-      return res.status(401).json({ error: 'Unauthorized: Invalid token' });
-    }
-
-    const userId = decoded.id;
-
-    try {
-      const [rows] = await db.promise().query('SELECT * FROM users WHERE id = ?', [userId]);
-
-      if (rows.length === 0) {
-        return res.status(401).json({ error: 'Unauthorized: User not found' });
-      }
-
-      // Attach user info to request object for downstream use
-      req.user = rows[0];
-      next();
-    } catch (dbErr) {
-      console.error('Database error in verifyUser middleware:', dbErr);
-      return res.status(500).json({ error: 'Server error during user verification' });
-    }
-  });
 };
-
-module.exports = verifyUser;

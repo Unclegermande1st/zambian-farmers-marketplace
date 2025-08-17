@@ -66,7 +66,7 @@ exports.login = async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Login successful',
+      message: 'Login successful', 
       token: customToken,
       user: {
         uid: userRecord.uid,
