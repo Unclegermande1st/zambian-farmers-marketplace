@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../firebaseConfig';
 
 const RegisterForm = () => {
   const [formData, setFormData] = useState({
@@ -21,68 +23,87 @@ const RegisterForm = () => {
     setMessage('');
 
     try {
-      const res = await fetch("http://localhost:5000/auth/register", {
+      // 1. Create user in Firebase Auth
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        formData.email,
+        formData.password
+      );
+      
+      // 2. Send user data to backend
+      const res = await fetch("http://localhost:5000/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          uid: userCredential.user.uid,
+          name: formData.name,
+          email: formData.email,
+          role: formData.role
+        }),
       });
 
-      const data = await res.json();
-
       if (res.ok) {
-        setMessage('✅ Registration successful! You can now log in.');
+        setMessage(' Registration successful! You can now log in.');
       } else {
-        setMessage(`❌ ${data.error}`);
+        const errorData = await res.json();
+        setMessage(` ${errorData.error}`);
       }
     } catch (error) {
-      setMessage(`❌ ${error.message}`);
+      setMessage(` Registration failed: ${error.message}`);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div style={{ maxWidth: '400px', margin: '50px auto', padding: '20px' }}>
+    <form onSubmit={handleSubmit}>
       <h2>Register</h2>
-      <form onSubmit={handleSubmit}>
+      {message && <div>{message}</div>}
+      <div>
+        <label>Name:</label>
         <input
           type="text"
           name="name"
-          placeholder="Name"
           value={formData.name}
           onChange={handleChange}
           required
         />
-        <br />
+      </div>
+      <div>
+        <label>Email:</label>
         <input
           type="email"
           name="email"
-          placeholder="Email"
           value={formData.email}
           onChange={handleChange}
           required
         />
-        <br />
+      </div>
+      <div>
+        <label>Password:</label>
         <input
           type="password"
           name="password"
-          placeholder="Password"
           value={formData.password}
           onChange={handleChange}
           required
         />
-        <br />
-        <select name="role" value={formData.role} onChange={handleChange}>
+      </div>
+      <div>
+        <label>Role:</label>
+        <select
+          name="role"
+          value={formData.role}
+          onChange={handleChange}
+        >
           <option value="buyer">Buyer</option>
           <option value="farmer">Farmer</option>
         </select>
-        <br />
-        <button type="submit" disabled={loading}>
-          {loading ? 'Registering...' : 'Register'}
-        </button>
-      </form>
-      {message && <p style={{ marginTop: '10px' }}>{message}</p>}
-    </div>
+      </div>
+      <button type="submit" disabled={loading}>
+        {loading ? "Registering..." : "Register"}
+      </button>
+    </form>
   );
 };
 
