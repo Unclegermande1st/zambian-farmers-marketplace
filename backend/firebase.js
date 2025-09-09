@@ -1,14 +1,19 @@
 // backend/firebase.js
 const admin = require("firebase-admin");
-
-// ✅ Correct relative path
 const serviceAccount = require("./firebase/serviceAccountkey.json");
 
+// Initialize Firebase app
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
+  storageBucket: "zambian-farmers-marketplace.appspot.com", // Firebase Storage bucket
 });
 
+// Get Firestore and Storage references
 const db = admin.firestore();
-module.exports = db;
+const storage = admin.storage().bucket();
 
-console.log("✅ Firebase connected successfully!");
+// Log success
+console.log(" Firebase connected successfully!");
+
+// Export both
+module.exports = { db, storage };

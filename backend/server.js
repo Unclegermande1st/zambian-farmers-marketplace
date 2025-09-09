@@ -9,10 +9,10 @@ const app = express();
 app.use(cors());
 app.use(express.json()); // To parse JSON bodies
 
-// ✅ Import your auth routes (only once!)
+//  Import your auth routes (only once!)
 const authRoutes = require("./routes/authRoutes");
 
-// ✅ Use API prefix for consistency
+//  Use API prefix for consistency
 app.use("/api/auth", authRoutes);
 
 // Test route
@@ -25,6 +25,13 @@ const productRoutes = require("./routes/productRoutes");
 
 // Use product routes (protected)
 app.use("/api/products", productRoutes);
+
+// Add this near other route imports
+const orderRoutes = require("./routes/orderRoutes");
+
+// Add this before app.listen()
+app.use("/api/orders", orderRoutes);
+
 // Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

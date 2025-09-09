@@ -1,5 +1,5 @@
 // backend/controllers/productController.js
-const db = require("../firebase");
+const { db } = require("../firebase");
 
 // POST /api/products/create
 exports.createProduct = async (req, res) => {

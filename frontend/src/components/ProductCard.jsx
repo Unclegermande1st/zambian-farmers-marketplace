@@ -1,55 +1,63 @@
 // frontend/src/components/ProductCard.jsx
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { addToCart } from "../utils/cartUtils";
 
 export default function ProductCard({ product }) {
+  const navigate = useNavigate();
+
+  const handleAddToCart = () => {
+    addToCart(product);
+    alert(`${product.title} added to cart!`);
+  };
+
   return (
-    <div style={{
-      border: "1px solid #ddd",
-      borderRadius: "8px",
-      padding: "16px",
-      boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-      backgroundColor: "#fff"
-    }}>
+    <div className="card h-100">
       {product.imageUrl ? (
-        <img src={product.imageUrl} alt={product.title} style={{
-          width: "100%",
-          height: "180px",
-          objectFit: "cover",
-          borderRadius: "6px"
-        }} />
+        <img
+          src={product.imageUrl}
+          alt={product.title}
+          className="card-img-top"
+          style={{ height: "180px", objectFit: "cover" }}
+        />
       ) : (
-        <div style={{
-          width: "100%",
-          height: "180px",
-          backgroundColor: "#f0f0f0",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          borderRadius: "6px",
-          color: "#999"
-        }}>
+        <div
+          className="card-img-top d-flex align-items-center justify-content-center"
+          style={{ height: "180px", backgroundColor: "#f8f9fa", color: "#6c757d" }}
+        >
           No Image
         </div>
       )}
 
-      <h3 style={{ margin: "12px 0", fontSize: "1.2rem" }}>{product.title}</h3>
-      <p><strong>K{product.price}</strong> per unit</p>
-      <p>{product.quantity} units available</p>
-      <p><em>{product.category}</em></p>
-      <p>{product.description}</p>
+      <div className="card-body d-flex flex-column">
+        <h5 className="card-title">{product.title}</h5>
+        <p className="card-text text-success">
+          <strong>K{product.price}</strong> per unit
+        </p>
+        <p className="card-text">
+          <small>{product.quantity} units available</small>
+          <br />
+          <em>{product.category}</em>
+        </p>
+        <p className="card-text" style={{ fontSize: "0.9rem" }}>
+          {product.description}
+        </p>
 
-      <Link to={`/product/${product.id}`}>
-        <button style={{
-          backgroundColor: "#28a745",
-          color: "white",
-          border: "none",
-          padding: "8px 12px",
-          borderRadius: "4px",
-          cursor: "pointer"
-        }}>
-          View Details
-        </button>
-      </Link>
+        <div className="mt-auto d-grid gap-2">
+          <button
+            className="btn btn-sm btn-outline-primary"
+            onClick={() => navigate(`/product/${product.id}`)}
+          >
+            View Details
+          </button>
+
+          <button
+            className="btn btn-sm btn-success"
+            onClick={handleAddToCart}
+          >
+            Add to Cart
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

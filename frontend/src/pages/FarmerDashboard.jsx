@@ -1,5 +1,6 @@
 // frontend/src/pages/FarmerDashboard.jsx
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom"; // ✅ Add this import
 import axios from "axios";
 import ProductCard from "../components/ProductCard";
 
@@ -28,8 +29,8 @@ export default function FarmerDashboard() {
 
   return (
     <div className="container my-4">
-      <h2 className="mb-4"> My Products</h2>
-      <a href="/product/new" className="btn btn-success mb-4">+ Add New Product</a>
+      <h2 className="mb-4">👨‍🌾 My Products</h2>
+      <Link to="/add-product" className="btn btn-success mb-4">+ Add New Product</Link>
 
       {loading ? (
         <p>Loading...</p>

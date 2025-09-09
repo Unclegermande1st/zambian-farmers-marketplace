@@ -1,9 +1,14 @@
 // frontend/src/components/Navbar.jsx
 import { Link } from "react-router-dom";
+import { loadCart } from "../utils/cartUtils"; // ← Add this import
 
 export default function Navbar() {
   const role = localStorage.getItem("role") || null;
   const name = localStorage.getItem("name") || "User";
+
+  // Get cart size
+  const cart = loadCart();
+  const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
     <nav className="navbar navbar-expand-lg navbar-dark bg-success shadow">
@@ -47,6 +52,15 @@ export default function Navbar() {
           <div className="d-flex align-items-center">
             {role ? (
               <>
+                <Link to="/cart" className="btn btn-outline-light btn-sm me-3 position-relative">
+                  🛒 Cart
+                  {cartCount > 0 && (
+                    <span className="position-absolute top-0 start-100 translate-middle badge bg-danger">
+                      {cartCount}
+                    </span>
+                  )}
+                </Link>
+
                 <span className="text-white me-3">
                   Hello, <strong>{name}</strong>
                 </span>
@@ -54,7 +68,7 @@ export default function Navbar() {
                   className="btn btn-light btn-sm"
                   onClick={() => {
                     localStorage.clear();
-                    window.location.href = "/"; // Back to landing
+                    window.location.href = "/";
                   }}
                 >
                   Logout

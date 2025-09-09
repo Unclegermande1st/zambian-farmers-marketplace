@@ -2,9 +2,9 @@
 
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const db = require("../firebase");
+const { db } = require("../firebase");
 
-// ✅ Import both saveOTP and verifyOTP from otpService
+//  Import both saveOTP and verifyOTP from otpService
 const { saveOTP, verifyOTP } = require("./otpService");
 const { sendOTP } = require("./emailService");
 
@@ -64,9 +64,9 @@ exports.register = async (req, res) => {
     // Send OTP via email (simulate or real)
     try {
       await sendOTP(email, otp);
-      console.log(`🎯 OTP sent to ${email}: ${otp}`);
+      console.log(` OTP sent to ${email}: ${otp}`);
     } catch (emailError) {
-      console.warn(`📧 Failed to send OTP to ${email}:`, emailError.message);
+      console.warn(` Failed to send OTP to ${email}:`, emailError.message);
       // Continue anyway — for dev, we'll log OTP
       console.log(`🔐 [DEV MODE] OTP for ${email}: ${otp}`);
     }
@@ -93,7 +93,7 @@ exports.verifyOTP = async (req, res) => {
   }
 
   try {
-    // ✅ This works now because verifyOTP is imported
+    // This works now because verifyOTP is imported
     const userId = await verifyOTP(email, otp);
 
     if (!userId) {
@@ -118,7 +118,7 @@ exports.verifyOTP = async (req, res) => {
     res.json({ message: "Email verified successfully!" });
 
   } catch (err) {
-    console.error("❌ OTP verification error:", err);
+    console.error(" OTP verification error:", err);
     res.status(500).json({ error: "Internal server error. " + err.message });
   }
 };
@@ -173,7 +173,7 @@ exports.login = async (req, res) => {
     });
 
   } catch (err) {
-    console.error("❌ Login error:", err);
+    console.error(" Login error:", err);
     res.status(500).json({ error: "Internal server error. " + err.message });
   }
 };

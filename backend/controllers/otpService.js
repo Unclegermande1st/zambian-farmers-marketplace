@@ -1,5 +1,5 @@
 // backend/controllers/otpService.js
-const db = require("../firebase");
+const { db } = require("../firebase");
 
 // Save OTP to Firestore
 const saveOTP = async (userId, email, otp) => {
