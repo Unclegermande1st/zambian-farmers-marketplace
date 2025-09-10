@@ -1,0 +1,140 @@
+/* Navbar container */
+.landing-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 2rem;
+  background: rgba(0, 0, 0, 0.5); /* subtle overlay */
+  color: #fff;
+  position: fixed;
+  width: 100%;
+  top: 0;
+  z-index: 1000;
+  backdrop-filter: blur(6px);
+  box-sizing: border-box; /* Ensures padding is included in width */
+}
+
+/* Logo placeholder */
+.landing-header .logo {
+  font-size: 1.6rem;
+  font-weight: bold;
+  color: #ffffff;
+}
+
+/* Navigation list */
+.landing-header nav ul {
+  display: flex;
+  gap: 2rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  align-items: center;
+}
+
+/* Navigation links - all links including login/signup */
+.landing-header nav ul li a {
+  color: #ffffff;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s ease;
+  padding: 0.5rem 0;
+}
+
+.landing-header nav ul li a:hover {
+  color: #f7c948; /* Soft yellow hover */
+}
+
+/* Removed special button styling - now matches other links */
+.signup-btn, .login-btn {
+  background: none;
+  padding: 0;
+  border-radius: 0;
+  font-weight: 500;
+  color: #ffffff !important;
+}
+
+/* Mobile menu styles */
+.menu-toggle {
+  display: none;
+  cursor: pointer;
+  z-index: 1001;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .landing-header {
+    padding: 1rem;
+  }
+  
+  .menu-toggle {
+    display: block;
+  }
+  
+  .landing-header nav ul {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 70%;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.9);
+    backdrop-filter: blur(10px);
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
+    transition: right 0.3s ease;
+    padding-top: 80px;
+  }
+  
+  .landing-header nav ul.active {
+    right: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .landing-header nav ul {
+    width: 100%;
+  }
+}
+/* Style for navigation buttons */
+.navbar button {
+  background-color: transparent;
+  color: #fff;
+  border: 1px solid #fff;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+/* Hover effect */
+.navbar button:hover {
+  background-color: #fff;
+  color: #333;
+}
+@media screen and (max-width: 768px) {
+  .navbar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .navbar nav {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .landing-container {
+    padding: 30px;
+    background-position: center;
+    text-align: center;
+  }
+
+  .landing-container h1 {
+    font-size: 28px;
+  }
+
+  .landing-container p {
+    font-size: 16px;
+  }
+}
