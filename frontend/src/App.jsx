@@ -12,7 +12,8 @@ import Checkout from "./pages/Checkout";
 import OrderHistory from "./pages/OrderHistory";
 import FarmerDashboard from "./pages/FarmerDashboard";
 import AddProductForm from "./pages/AddProductForm";
-
+import Inbox from "./pages/Inbox";
+import MessageDetail from "./pages/MessageDetail";
 
 // Components
 import Navbar from "./components/Navbar";
@@ -31,6 +32,8 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/verify-otp" element={<VerifyOTP />} />
+            <Route path="/inbox" element={<Inbox />} />
+            <Route path="/inbox/:messageId" element={<MessageDetail />} />
 
             {/* Buyer Routes */}
             <Route path="/marketplace" element={<Marketplace />} />

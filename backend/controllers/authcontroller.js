@@ -1,10 +1,9 @@
 // backend/controllers/authController.js
-
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { db } = require("../firebase");
 
-//  Import both saveOTP and verifyOTP from otpService
+// Import both saveOTP and verifyOTP from otpService
 const { saveOTP, verifyOTP } = require("./otpService");
 const { sendOTP } = require("./emailService");
 
@@ -164,11 +163,12 @@ exports.login = async (req, res) => {
       { expiresIn: "24h" }
     );
 
-    // Send success response
+    // ✅ Send userId back to frontend
     res.json({
       token,
       role: userData.role,
       name: userData.name,
+      userId: userDoc.id, // ✅ Critical: So frontend can save it
       message: "Login successful"
     });
 

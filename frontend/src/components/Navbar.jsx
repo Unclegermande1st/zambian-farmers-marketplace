@@ -1,6 +1,6 @@
 // frontend/src/components/Navbar.jsx
 import { Link } from "react-router-dom";
-import { loadCart } from "../utils/cartUtils"; // ← Add this import
+import { loadCart } from "../utils/cartUtils"; // Import cart utility
 
 export default function Navbar() {
   const role = localStorage.getItem("role") || null;
@@ -14,7 +14,7 @@ export default function Navbar() {
     <nav className="navbar navbar-expand-lg navbar-dark bg-success shadow">
       <div className="container-fluid">
         <Link className="navbar-brand" to="/">
-          🌾 Zambian Farmers Market
+           Zambian Farmers Market🌾
         </Link>
 
         <button
@@ -52,6 +52,7 @@ export default function Navbar() {
           <div className="d-flex align-items-center">
             {role ? (
               <>
+                {/* Cart Button */}
                 <Link to="/cart" className="btn btn-outline-light btn-sm me-3 position-relative">
                   🛒 Cart
                   {cartCount > 0 && (
@@ -61,6 +62,14 @@ export default function Navbar() {
                   )}
                 </Link>
 
+                {/* Inbox Button - Only show if user is logged in */}
+                <Link to="/inbox" className="btn btn-outline-light btn-sm me-3 position-relative">
+                   Inbox
+                  {/* Optional: Add unread count badge later */}
+                  {/* {hasUnread && <span className="position-absolute top-0 start-100 translate-middle badge bg-warning">!</span>} */}
+                </Link>
+
+                {/* Greeting & Logout */}
                 <span className="text-white me-3">
                   Hello, <strong>{name}</strong>
                 </span>
@@ -75,6 +84,7 @@ export default function Navbar() {
                 </button>
               </>
             ) : (
+              /* Login/Register Buttons for Guests */
               <div className="d-grid gap-2 d-md-flex">
                 <Link className="btn btn-outline-light btn-sm" to="/login">
                   Login

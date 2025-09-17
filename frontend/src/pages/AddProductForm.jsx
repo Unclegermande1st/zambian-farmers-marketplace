@@ -58,7 +58,7 @@ export default function AddProductForm() {
 
   return (
     <div className="container my-4">
-      <h2>📦 Add New Product</h2>
+      <h2> Add New Product</h2>
 
       {message && (
         <div className={`alert ${message.includes("success") ? "alert-success" : "alert-danger"}`}>

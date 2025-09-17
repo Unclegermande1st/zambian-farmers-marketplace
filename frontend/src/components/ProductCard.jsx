@@ -1,9 +1,12 @@
 // frontend/src/components/ProductCard.jsx
 import { useNavigate } from "react-router-dom";
 import { addToCart } from "../utils/cartUtils";
+import { useState } from "react";
+import SendMessageModal from "./SendMessageModal"; // ✅ Import the modal
 
 export default function ProductCard({ product }) {
   const navigate = useNavigate();
+  const [showModal, setShowModal] = useState(false); // ✅ Modal state
 
   const handleAddToCart = () => {
     addToCart(product);
@@ -12,6 +15,7 @@ export default function ProductCard({ product }) {
 
   return (
     <div className="card h-100">
+      {/* Image Section */}
       {product.imageUrl ? (
         <img
           src={product.imageUrl}
@@ -28,6 +32,7 @@ export default function ProductCard({ product }) {
         </div>
       )}
 
+      {/* Content Section */}
       <div className="card-body d-flex flex-column">
         <h5 className="card-title">{product.title}</h5>
         <p className="card-text text-success">
@@ -42,6 +47,7 @@ export default function ProductCard({ product }) {
           {product.description}
         </p>
 
+        {/* Action Buttons */}
         <div className="mt-auto d-grid gap-2">
           <button
             className="btn btn-sm btn-outline-primary"
@@ -56,8 +62,24 @@ export default function ProductCard({ product }) {
           >
             Add to Cart
           </button>
+
+          <button
+            className="btn btn-sm btn-outline-info"
+            onClick={() => setShowModal(true)} // ✅ Open real modal
+          >
+             Message Farmer
+          </button>
         </div>
       </div>
+
+      {/* Modal */}
+      {showModal && (
+        <SendMessageModal
+          productId={product.id}
+          farmerId={product.farmerId} // Make sure this is set in Firestore!
+          onClose={() => setShowModal(false)}
+        />
+      )}
     </div>
   );
 }

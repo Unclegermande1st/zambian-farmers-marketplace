@@ -1,16 +1,20 @@
 // frontend/src/utils/uploadImage.js
-import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { app } from "../firebase"; // You'll create this next
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { storage } from "../firebase"; // ✅ Import storage directly
 
-// Initialize Firebase app only once
-export const storage = getStorage(app);
-
-// Upload image and return download URL
 export const uploadImage = async (file) => {
-  const fileName = `${Date.now()}_${file.name}`;
-  const fileRef = ref(storage, `product-images/${fileName}`);
+  try {
+    const fileName = `${Date.now()}_${file.name}`;
+    const fileRef = ref(storage, `product-images/${fileName}`);
 
-  await uploadBytes(fileRef, file);
-  const downloadURL = await getDownloadURL(fileRef);
-  return downloadURL;
+    console.log("Uploading:", fileName);
+    const snapshot = await uploadBytes(fileRef, file);
+    const downloadURL = await getDownloadURL(snapshot.ref);
+    console.log("Uploaded successfully:", downloadURL);
+
+    return downloadURL;
+  } catch (error) {
+    console.error("Upload failed:", error.code, error.message);
+    throw new Error(`Upload failed: ${error.message}`);
+  }
 };

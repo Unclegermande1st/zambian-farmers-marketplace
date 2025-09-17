@@ -18,12 +18,14 @@ export default function LoginForm() {
     setMessage("");
 
     try {
+      // ✅ Send login data to backend API
       const res = await axios.post("http://localhost:5000/api/auth/login", formData);
 
-      // Save to localStorage
+      // ✅ Save auth data to localStorage
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("role", res.data.role);
       localStorage.setItem("name", res.data.name);
+      localStorage.setItem("userId", res.data.userId); // Critical for messaging
 
       setMessage("Login successful!");
 
@@ -34,13 +36,13 @@ export default function LoginForm() {
             navigate("/farmer/dashboard");
             break;
           case "buyer":
-            navigate("/marketplace"); // ← you have this now!
+            navigate("/marketplace");
             break;
           case "admin":
             navigate("/admin/dashboard");
             break;
           default:
-            navigate("/login");
+            navigate("/");
         }
       }, 1000);
     } catch (err) {
@@ -85,7 +87,7 @@ export default function LoginForm() {
   );
 }
 
-// Styles (optional – or move to CSS file later)
+// --- Styles ---
 const inputGroupStyle = { marginBottom: "15px" };
 const inputStyle = {
   width: "100%",
@@ -106,5 +108,5 @@ const buttonStyle = {
 };
 const messageStyle = (msg) => ({
   marginTop: "10px",
-  color: msg.includes("failed") || msg.includes("Login") ? "red" : "green",
+  color: msg.includes("failed") ? "red" : "green",
 });

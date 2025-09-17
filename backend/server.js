@@ -1,41 +1,34 @@
 // server.js
 const express = require("express");
 const cors = require("cors");
-require("dotenv").config(); // ← Important: load .env
+require("dotenv").config();
 
 const app = express();
 
-// Middleware
 app.use(cors());
-app.use(express.json()); // To parse JSON bodies
+app.use(express.json());
 
-//  Import your auth routes (only once!)
+// Routes
 const authRoutes = require("./routes/authRoutes");
+const productRoutes = require("./routes/productRoutes");
+const orderRoutes = require("./routes/orderRoutes");
+const messageRoutes = require("./routes/messageRoutes");
+const userRoutes = require("./routes/userRoutes"); // ✅ Now matches filename
 
-//  Use API prefix for consistency
+// Mount APIs
 app.use("/api/auth", authRoutes);
+app.use("/api/products", productRoutes);
+app.use("/api/orders", orderRoutes);
+app.use("/api/messages", messageRoutes);
+app.use("/api/users", userRoutes); // ✅ /api/users/verify now works
 
 // Test route
 app.get("/", (req, res) => {
   res.send("Zambian Farmers Marketplace API is running 🚀");
-});
-
-// Import product routes
-const productRoutes = require("./routes/productRoutes");
-
-// Use product routes (protected)
-app.use("/api/products", productRoutes);
-
-// Add this near other route imports
-const orderRoutes = require("./routes/orderRoutes");
-
-// Add this before app.listen()
-app.use("/api/orders", orderRoutes);
+})
 
 // Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`✅ Server running on http://localhost:${PORT}`);
-  console.log(`💡 API docs: http://localhost:${PORT}/api/auth/register (POST)`);
-});
-
+})

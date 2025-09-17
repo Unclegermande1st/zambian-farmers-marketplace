@@ -3,15 +3,16 @@
 const { auth, admin } = require('../firebase/firebaseAdmin'); // Import Firebase Admin SDK
 const db = admin.firestore(); // Initialize Firestore
 
-module.exports = async (req, res, next) => {
+// Middleware to verify the user via Firebase token
+const verifyUser = async (req, res, next) => {
   try {
     const header = req.headers.authorization;
     if (!header) {
       return res.status(401).json({ message: 'No token provided' });
     }
 
-    const token = header.split(' ')[1]; // Get the Bearer token
-    const decodedToken = await auth.verifyIdToken(token); // Verify the ID token
+    const token = header.split(' ')[1]; // Extract Bearer token
+    const decodedToken = await auth.verifyIdToken(token); // Verify Firebase token
 
     // Fetch user data from Firestore
     const userDoc = await db.collection('users').doc(decodedToken.uid).get();
@@ -29,3 +30,20 @@ module.exports = async (req, res, next) => {
     res.status(401).json({ message: 'Invalid or expired token' });
   }
 };
+
+// Middleware to authorize user role(s)
+const authorizeRole = (roles) => {
+  return (req, res, next) => {
+    if (!req.user || !req.user.role) {
+      return res.status(403).json({ error: 'User role not found' });
+    }
+
+    if (!roles.includes(req.user.role)) {
+      return res.status(403).json({ error: 'Forbidden: insufficient role' });
+    }
+
+    next();
+  };
+};
+
+module.exports = { verifyUser, authorizeRole };
