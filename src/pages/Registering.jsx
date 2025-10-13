@@ -1,7 +1,8 @@
 // src/pages/Register.jsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "../styles/register.css"; // ✅ make sure filename matches exactly
+import axios from "axios";
+import "../styles/register.css";
 
 function Register() {
   const [step, setStep] = useState(1);
@@ -13,44 +14,100 @@ function Register() {
     phone: "",
     nrc: "",
     password: "",
-    confirmPassword: ""
+    confirmPassword: "",
+    role: "farmer",
   });
-
+  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  // Step navigation
+  // Navigation between steps
   const handleNext = () => setStep((prev) => prev + 1);
   const handleBack = () => setStep((prev) => prev - 1);
 
-  // Handle input changes
+  // Handle input
   const handleChange = (e) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
-  // Final submit
+  // Registration step (send data to backend)
+  const handleRegisterSubmit = async () => {
+    setLoading(true);
+    setMessage("");
+    try {
+      const fullName = `${formData.firstName} ${formData.lastName}`;
+      const res = await axios.post("http://localhost:5000/api/auth/register", {
+        name: fullName,
+        email: formData.phone,
+        phone: formData.phone,
+        password: formData.password,
+        role: formData.role,
+      });
+
+      localStorage.setItem("pendingEmail", formData.phone);
+      setMessage(res.data.message || "OTP sent to your phone/email");
+      handleNext(); // Move to OTP verification
+    } catch (err) {
+      setMessage(err.response?.data?.error || "Registration failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // OTP verification step
+  const handleOTPVerify = async () => {
+    setLoading(true);
+    setMessage("");
+    try {
+      const email = localStorage.getItem("pendingEmail");
+      await axios.post("http://localhost:5000/api/auth/verify-otp", {
+        email,
+        otp,
+      });
+      setMessage("Verification successful! Redirecting to login...");
+      setTimeout(() => navigate("/login"), 1500);
+    } catch (err) {
+      setMessage(err.response?.data?.error || "OTP verification failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle submit for current step
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Form submitted:", formData);
-    navigate("/dashboard"); // ✅ go to dashboard after submit
+    if (step === 2) {
+      handleOTPVerify();
+    } else if (step === 5) {
+      handleRegisterSubmit();
+    }
   };
 
   return (
     <div className="register-container">
-      {/* Left side */}
       <div className="register-left">
         <h1>SmartAgri</h1>
         <p>Empowering farmers with modern digital solutions.</p>
       </div>
 
-      {/* Right side */}
       <div className="register-right">
         <h2>Create Account</h2>
         <p className="register-subtitle">
           Step {step} of 5 • Sign up to <span>SmartAgri</span>
         </p>
+
+        {message && (
+          <div
+            className={`alert ${
+              message.includes("failed") ? "alert-danger" : "alert-success"
+            }`}
+          >
+            {message}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit}>
           {/* Step 1: Personal Info */}
@@ -106,13 +163,25 @@ function Register() {
                 </div>
               </div>
 
+              <div className="input-group">
+                <label>I am a:</label>
+                <select
+                  name="role"
+                  value={formData.role}
+                  onChange={handleChange}
+                >
+                  <option value="farmer">Farmer</option>
+                  <option value="buyer">Buyer</option>
+                </select>
+              </div>
+
               <button type="button" onClick={handleNext}>
                 Continue
               </button>
             </div>
           )}
 
-          {/* Step 2: Phone Number & OTP */}
+          {/* Step 2: Phone & OTP */}
           {step === 2 && (
             <div className="form-step">
               <div className="input-group">
@@ -128,33 +197,32 @@ function Register() {
                 />
               </div>
 
-              <button type="button">Verify Number</button>
+              <button
+                type="button"
+                onClick={handleRegisterSubmit}
+                disabled={loading}
+              >
+                {loading ? "Sending OTP..." : "Verify Number"}
+              </button>
 
               <div className="input-group">
-                <label htmlFor="otp">OTP Verification</label>
+                <label htmlFor="otp">Enter OTP</label>
                 <input
                   type="text"
                   id="otp"
-                  placeholder="Enter OTP code"
+                  placeholder="Enter the code sent to you"
                   value={otp}
                   onChange={(e) => setOtp(e.target.value)}
                   required
                 />
               </div>
 
-              <div className="otp-row">
-                <button type="button">Confirm</button>
-                <button type="button" className="resend-btn">
-                  Resend OTP
-                </button>
-              </div>
-
               <div className="step-actions">
                 <button type="button" onClick={handleBack}>
                   Back
                 </button>
-                <button type="button" onClick={handleNext}>
-                  Continue
+                <button type="submit" disabled={loading}>
+                  {loading ? "Verifying..." : "Confirm OTP"}
                 </button>
               </div>
             </div>
@@ -187,7 +255,7 @@ function Register() {
             </div>
           )}
 
-          {/* Step 4: Face ID */}
+          {/* Step 4: Face ID Upload */}
           {step === 4 && (
             <div className="form-step">
               <p>Use your webcam or upload a photo for Face ID verification.</p>
@@ -207,7 +275,7 @@ function Register() {
             </div>
           )}
 
-          {/* Step 5: Password */}
+          {/* Step 5: Password Creation */}
           {step === 5 && (
             <div className="form-step">
               <div className="input-group">
@@ -236,24 +304,19 @@ function Register() {
                 />
               </div>
 
-              <div className="terms">
-                <input type="checkbox" id="terms" required />
-                <label htmlFor="terms">
-                  I agree to the Terms and Conditions
-                </label>
-              </div>
-
               <div className="step-actions">
                 <button type="button" onClick={handleBack}>
                   Back
                 </button>
-                <button type="submit">Submit</button>
+                <button type="submit" disabled={loading}>
+                  {loading ? "Submitting..." : "Submit"}
+                </button>
               </div>
             </div>
           )}
         </form>
 
-        {/* Social login options (only in step 1) */}
+        {/* Social login options (only step 1) */}
         {step === 1 && (
           <>
             <div className="divider">

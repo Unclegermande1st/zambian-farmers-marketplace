@@ -1,7 +1,11 @@
 // backend/routes/userRoutes.js
 const express = require('express');
 const router = express.Router();
+
+// Middleware
+// Correct import
 const { verifyUser, authorizeRole } = require('../middleware/verifyUser');
+
 
 // Import Firebase Admin SDK
 const { admin } = require('../firebase/firebaseAdmin');
