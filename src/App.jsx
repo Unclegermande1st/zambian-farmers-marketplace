@@ -1,5 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
 
 // Page imports
 import Landing from './pages/Landing';
@@ -20,34 +22,99 @@ import Marketplace from './pages/Marketplace';
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        {/* Public Routes */}
-        <Route path="/" element={<Landing />} />
-        <Route path="/login" element={<LoginForm />} />
-        <Route path="/register" element={<Register />} />
+    <AuthProvider>
+      <Router>
+        <Routes>
+          {/* Public Routes */}
+          <Route path="/" element={<Landing />} />
+          <Route path="/login" element={<LoginForm />} />
+          <Route path="/register" element={<Register />} />
 
-        {/* Buyer Routes */}
-        <Route path="/home" element={<Home />} />
-        <Route path="/marketplace" element={<Marketplace />} />
-        <Route path="/checkout" element={<Checkout />} />
-        <Route path="/payment-success" element={<PaymentSuccess />} />
+          {/* Protected Buyer Routes */}
+          <Route 
+            path="/home" 
+            element={
+              <ProtectedRoute>
+                <Home />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/marketplace" 
+            element={
+              <ProtectedRoute>
+                <Marketplace />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/checkout" 
+            element={
+              <ProtectedRoute>
+                <Checkout />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/payment-success" 
+            element={
+              <ProtectedRoute>
+                <PaymentSuccess />
+              </ProtectedRoute>
+            } 
+          />
 
-        {/* Communication */}
-        <Route path="/chats" element={<Chats />} />
+          {/* Communication */}
+          <Route 
+            path="/chats" 
+            element={
+              <ProtectedRoute>
+                <Chats />
+              </ProtectedRoute>
+            } 
+          />
 
-        {/* Resources */}
-        <Route path="/articles" element={<Articles />} />
+          {/* Resources */}
+          <Route path="/articles" element={<Articles />} />
 
-        {/* Dashboards */}
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/farmer-dashboard" element={<FarmerDashboard />} />
-        <Route path="/admin" element={<AdminDashboard />} />
+          {/* Dashboards */}
+          <Route 
+            path="/dashboard" 
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/farmer-dashboard" 
+            element={
+              <ProtectedRoute requiredRole="farmer">
+                <FarmerDashboard />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin" 
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <AdminDashboard />
+              </ProtectedRoute>
+            } 
+          />
 
-        {/* AI Assistant */}
-        <Route path="/assistant" element={<AssistantChat />} />
-      </Routes>
-    </Router>
+          {/* AI Assistant */}
+          <Route 
+            path="/assistant" 
+            element={
+              <ProtectedRoute>
+                <AssistantChat />
+              </ProtectedRoute>
+            } 
+          />
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
 }
 

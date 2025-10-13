@@ -1,15 +1,17 @@
 // src/components/LoginForm.jsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { authAPI } from '../services/api';
+import { useAuth } from '../context/AuthContext';
 import '../styles/LoginForm.css';
 
-const LoginForm = ({ onSwitchToSignup }) => {
+const LoginForm = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -17,16 +19,10 @@ const LoginForm = ({ onSwitchToSignup }) => {
     setMessage('');
 
     try {
-      const res = await axios.post('http://localhost:5000/api/auth/login', {
-        email,
-        password,
-      });
-
-      // Save auth data to local storage
-      localStorage.setItem('token', res.data.token);
-      localStorage.setItem('role', res.data.role);
-      localStorage.setItem('name', res.data.name);
-      localStorage.setItem('userId', res.data.userId);
+      const res = await authAPI.login(email, password);
+      
+      // Use auth context to save user data
+      login(res.data);
 
       setMessage('Login successful!');
 
@@ -106,7 +102,7 @@ const LoginForm = ({ onSwitchToSignup }) => {
 
         <div className="signup-prompt">
           Not a member?{' '}
-          <a href="#" onClick={onSwitchToSignup}>
+          <a href="/register">
             Signup now
           </a>
         </div>

@@ -1,7 +1,7 @@
 // src/pages/Register.jsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import { authAPI } from "../services/api";
 import "../styles/register.css";
 
 function Register() {
@@ -39,7 +39,7 @@ function Register() {
     setMessage("");
     try {
       const fullName = `${formData.firstName} ${formData.lastName}`;
-      const res = await axios.post("http://localhost:5000/api/auth/register", {
+      const res = await authAPI.register({
         name: fullName,
         email: formData.phone,
         phone: formData.phone,
@@ -63,10 +63,7 @@ function Register() {
     setMessage("");
     try {
       const email = localStorage.getItem("pendingEmail");
-      await axios.post("http://localhost:5000/api/auth/verify-otp", {
-        email,
-        otp,
-      });
+      await authAPI.verifyOTP(email, otp);
       setMessage("Verification successful! Redirecting to login...");
       setTimeout(() => navigate("/login"), 1500);
     } catch (err) {
@@ -89,7 +86,7 @@ function Register() {
   return (
     <div className="register-container">
       <div className="register-left">
-        <h1>SmartAgri</h1>
+        <h1>MarketPlus</h1>
         <p>Empowering farmers with modern digital solutions.</p>
       </div>
 
