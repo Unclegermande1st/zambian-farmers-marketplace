@@ -1,0 +1,123 @@
+/* src/styles/dashboard.css */
+
+.dashboard {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f5f5f5;
+}
+
+.sidebar {
+  width: 250px;
+  background-color: #2d3748;
+  color: white;
+  padding: 20px;
+  position: fixed;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.logo {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 30px;
+  color: #48bb78;
+}
+
+.menu {
+  list-style: none;
+  padding: 0;
+}
+
+.menu li {
+  padding: 15px 10px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.menu li:hover {
+  background-color: #4a5568;
+}
+
+.main {
+  flex: 1;
+  margin-left: 250px;
+  display: flex;
+  flex-direction: column;
+}
+
+.navbar {
+  background-color: white;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.search-bar {
+  padding: 10px 15px;
+  border: 1px solid #e2e8f0;
+  border-radius: 5px;
+  width: 300px;
+  outline: none;
+}
+
+.search-bar:focus {
+  border-color: #48bb78;
+}
+
+.weather {
+  font-size: 18px;
+  color: #2d3748;
+}
+
+.content {
+  padding: 30px;
+  flex: 1;
+}
+
+.content h1 {
+  margin-bottom: 10px;
+  color: #2d3748;
+}
+
+.content p {
+  color: #718096;
+}
+
+.chatbot-btn {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-color: #48bb78;
+  color: white;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+  transition: transform 0.3s;
+}
+
+.chatbot-btn:hover {
+  transform: scale(1.1);
+  background-color: #38a169;
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    width: 200px;
+  }
+  
+  .main {
+    margin-left: 200px;
+  }
+  
+  .search-bar {
+    width: 200px;
+  }
+}
