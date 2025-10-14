@@ -13,6 +13,9 @@ const orderRoutes = require('./routes/orderRoutes');
 const messageRoutes = require('./routes/messageRoutes');
 const userRoutes = require('./routes/userRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
+const adminRoutes = require('./routes/adminRoutes');       // ✅ Added
+const paymentRoutes = require('./routes/paymentRoutes');   // ✅ Added
+
 // Initialize express app
 const app = express();
 
@@ -41,6 +44,9 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/admin', adminRoutes);       // ✅ Added
+app.use('/api/payments', paymentRoutes);  // ✅ Added
+
 // 404 handler
 app.use((req, res) => {
   res.status(404).json({ error: 'Route not found' });

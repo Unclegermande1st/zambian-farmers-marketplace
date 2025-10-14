@@ -187,6 +187,7 @@ exports.rejectVerification = async (req, res) => {
 
 /**
  * GET /api/admin/orders
+ * ✅ Fixed version
  */
 exports.getAllOrders = async (req, res) => {
   try {
@@ -195,7 +196,25 @@ exports.getAllOrders = async (req, res) => {
       .limit(100)
       .get();
 
-    const orders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const orders = [];
+    for (const doc of snapshot.docs) {
+      const orderData = doc.data();
+
+      // Fetch buyer info
+      const buyerDoc = await db.collection("users").doc(orderData.buyerId).get();
+      const buyerName = buyerDoc.exists ? buyerDoc.data().name : "Unknown";
+
+      // Map products correctly
+      orders.push({
+        id: doc.id,
+        customerName: buyerName,
+        productName: orderData.products?.map(p => p.title).join(", ") || "N/A",
+        quantity: orderData.products?.reduce((sum, p) => sum + p.quantity, 0) || 0,
+        totalPrice: orderData.total || 0,
+        createdAt: orderData.createdAt
+      });
+    }
+
     res.json(orders);
   } catch (err) {
     console.error("❌ Error fetching orders:", err);
