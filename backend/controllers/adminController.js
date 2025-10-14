@@ -9,7 +9,7 @@ exports.getSystemStats = async (req, res) => {
   try {
     const [usersSnap, productsSnap, ordersSnap, messagesSnap] = await Promise.all([
       db.collection("users").get(),
-      db.collection("products").get(),
+      db.collection("products").where("status", "==", "available").get(),
       db.collection("orders").get(),
       db.collection("messages").get()
     ]);
@@ -21,6 +21,10 @@ exports.getSystemStats = async (req, res) => {
     const verified = users.filter(u => u.verification_status === "verified").length;
     const pending = users.filter(u => u.verification_status === "pending").length;
 
+    // Calculate total revenue
+    const orders = ordersSnap.docs.map(doc => doc.data());
+    const totalRevenue = orders.reduce((sum, order) => sum + (order.total || 0), 0);
+
     res.json({
       totalUsers: usersSnap.size,
       farmers,
@@ -31,6 +35,8 @@ exports.getSystemStats = async (req, res) => {
       totalProducts: productsSnap.size,
       totalOrders: ordersSnap.size,
       totalMessages: messagesSnap.size,
+      totalRevenue: totalRevenue.toFixed(2),
+      pendingVerifications: pending,
       timestamp: new Date()
     });
   } catch (err) {
@@ -85,7 +91,6 @@ exports.getUserById = async (req, res) => {
  */
 exports.updateUserStatus = async (req, res) => {
   const { status } = req.body;
-
   if (!status) return res.status(400).json({ error: "Status is required" });
 
   try {
@@ -107,13 +112,11 @@ exports.updateUserStatus = async (req, res) => {
  */
 exports.deleteUser = async (req, res) => {
   const { userId } = req.params;
-
   try {
     await db.collection("users").doc(userId).update({
       deleted: true,
       deleted_at: new Date()
     });
-
     res.json({ message: "User deactivated successfully" });
   } catch (err) {
     console.error("❌ Error deleting user:", err);
@@ -145,49 +148,45 @@ exports.getVerificationRequests = async (req, res) => {
 };
 
 /**
- * POST /api/admin/approve-verification
+ * PATCH /api/admin/verifications/:id
+ * Approve or reject verification (merged version)
  */
-exports.approveVerification = async (req, res) => {
-  const { userId } = req.body;
-  if (!userId) return res.status(400).json({ error: "User ID is required" });
+exports.reviewVerification = async (req, res) => {
+  const { status, reason } = req.body;
+  const { id } = req.params;
 
-  try {
-    await db.collection("users").doc(userId).update({
-      verification_status: "verified",
-      verified_at: new Date()
-    });
-
-    res.json({ message: "User verified successfully", userId });
-  } catch (err) {
-    console.error("❌ Error approving verification:", err);
-    res.status(500).json({ error: "Failed to approve verification" });
+  if (!status || !["verified", "rejected"].includes(status)) {
+    return res.status(400).json({ error: "Valid status is required (verified or rejected)" });
   }
-};
-
-/**
- * POST /api/admin/reject-verification
- */
-exports.rejectVerification = async (req, res) => {
-  const { userId, reason } = req.body;
-  if (!userId) return res.status(400).json({ error: "User ID is required" });
 
   try {
-    await db.collection("users").doc(userId).update({
-      verification_status: "rejected",
-      rejection_reason: reason || "Not specified",
-      rejected_at: new Date()
-    });
+    const updates = {
+      verification_status: status,
+      updated_at: new Date()
+    };
 
-    res.json({ message: "Verification rejected", userId });
+    if (status === "verified") {
+      updates.verified_at = new Date();
+    } else {
+      updates.rejection_reason = reason || "Not specified";
+      updates.rejected_at = new Date();
+    }
+
+    await db.collection("users").doc(id).update(updates);
+
+    res.json({
+      message: `Verification ${status === "verified" ? "approved" : "rejected"} successfully`,
+      userId: id
+    });
   } catch (err) {
-    console.error("❌ Error rejecting verification:", err);
-    res.status(500).json({ error: "Failed to reject verification" });
+    console.error("❌ Error reviewing verification:", err);
+    res.status(500).json({ error: "Failed to review verification" });
   }
 };
 
 /**
  * GET /api/admin/orders
- * ✅ Fixed version
+ * Get all orders with buyer and product info
  */
 exports.getAllOrders = async (req, res) => {
   try {
@@ -204,13 +203,13 @@ exports.getAllOrders = async (req, res) => {
       const buyerDoc = await db.collection("users").doc(orderData.buyerId).get();
       const buyerName = buyerDoc.exists ? buyerDoc.data().name : "Unknown";
 
-      // Map products correctly
       orders.push({
         id: doc.id,
         customerName: buyerName,
         productName: orderData.products?.map(p => p.title).join(", ") || "N/A",
         quantity: orderData.products?.reduce((sum, p) => sum + p.quantity, 0) || 0,
         totalPrice: orderData.total || 0,
+        status: orderData.status || "pending",
         createdAt: orderData.createdAt
       });
     }

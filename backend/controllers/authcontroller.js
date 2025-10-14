@@ -3,13 +3,14 @@ const bcrypt = require("bcryptjs");
 const { db } = require("../firebase");
 const { saveOTP, verifyOTP } = require("./otpService");
 const { sendOTP } = require("./emailService");
-const { createToken } = require("./jwtUtils");
+const { createToken } = require("./jwtUtils"); // ✅ Use centralized JWT
 require("dotenv").config();
 
 // Helper: Generate 6-digit OTP
 const generateOTP = () => Math.floor(100000 + Math.random() * 900000).toString();
 
 // POST /api/auth/register
+// Registers a new user and sends OTP
 exports.register = async (req, res) => {
   const { name, email, phone, password, role } = req.body;
 
@@ -18,6 +19,7 @@ exports.register = async (req, res) => {
   }
 
   try {
+    // Check if user already exists
     const existingSnapshot = await db.collection("users")
       .where("email", "==", email)
       .limit(1)
@@ -27,8 +29,10 @@ exports.register = async (req, res) => {
       return res.status(400).json({ error: "User with this email already exists" });
     }
 
+    // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // Build user object
     const userData = {
       name,
       email,
@@ -39,12 +43,17 @@ exports.register = async (req, res) => {
     };
     if (phone) userData.phone = phone;
 
+    // Save user to Firestore
     const userRef = await db.collection("users").add(userData);
     const userId = userRef.id;
 
+    // Generate OTP
     const otp = generateOTP();
+
+    // Save OTP to Firestore
     await saveOTP(userId, email, otp);
 
+    // Send OTP via email (simulate or real)
     try {
       await sendOTP(email, otp);
       console.log(` OTP sent to ${email}: ${otp}`);
@@ -53,7 +62,10 @@ exports.register = async (req, res) => {
       console.log(`🔐 [DEV MODE] OTP for ${email}: ${otp}`);
     }
 
-    res.status(201).json({ message: "Registration successful. Check email for OTP.", userId });
+    res.status(201).json({
+      message: "Registration successful. Check email for OTP.",
+      userId
+    });
 
   } catch (err) {
     console.error("❌ Registration error:", err);
@@ -62,15 +74,19 @@ exports.register = async (req, res) => {
 };
 
 // POST /api/auth/verify-otp
+// Verifies the OTP and marks user as verified
 exports.verifyOTP = async (req, res) => {
   const { email, otp } = req.body;
 
-  if (!email || !otp) return res.status(400).json({ error: "Email and OTP are required" });
+  if (!email || !otp) {
+    return res.status(400).json({ error: "Email and OTP are required" });
+  }
 
   try {
     const userId = await verifyOTP(email, otp);
     if (!userId) return res.status(400).json({ error: "Invalid or expired OTP" });
 
+    // Update user verification status
     const userSnapshot = await db.collection("users")
       .where("email", "==", email)
       .limit(1)
@@ -89,12 +105,16 @@ exports.verifyOTP = async (req, res) => {
 };
 
 // POST /api/auth/login
+// Logs in user and returns JWT
 exports.login = async (req, res) => {
   const { email, password } = req.body;
 
-  if (!email || !password) return res.status(400).json({ error: "Email and password are required" });
+  if (!email || !password) {
+    return res.status(400).json({ error: "Email and password are required" });
+  }
 
   try {
+    // Find user
     const userSnapshot = await db.collection("users")
       .where("email", "==", email)
       .limit(1)
@@ -105,13 +125,16 @@ exports.login = async (req, res) => {
     const userDoc = userSnapshot.docs[0];
     const userData = userDoc.data();
 
+    // Verify password
     const isMatch = await bcrypt.compare(password, userData.password);
     if (!isMatch) return res.status(401).json({ error: "Invalid credentials" });
 
+    // Verify email
     if (userData.verification_status !== "verified") {
       return res.status(403).json({ error: "Please verify your email first" });
     }
 
+    // Generate JWT
     const token = createToken({ userId: userDoc.id, role: userData.role });
 
     res.json({

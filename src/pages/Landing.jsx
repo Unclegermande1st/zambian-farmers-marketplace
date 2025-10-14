@@ -20,7 +20,7 @@ function Landing() {
       {/* Hero Section */}
       <section id="home" className="landing">
         <div className="hero-content">
-          <h1>Welcome to AgroMarket+</h1>
+          <h1>Welcome to AgroMarket+🌽</h1>
           <h2>Bringing farm produce closer to you</h2>
           <p>
             Explore trusted suppliers and farmers around you. Enjoy seamless and secure transactions with our digital marketplace.
