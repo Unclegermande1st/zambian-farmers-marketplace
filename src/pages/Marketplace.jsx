@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { productAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import { useCart } from '../context/CartContext';
 
 const Marketplace = () => {
   const [products, setProducts] = useState([]);
@@ -9,8 +11,9 @@ const Marketplace = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const { user } = useAuth();
+  const { addToCart, cart, getCartCount } = useCart();
+  const navigate = useNavigate();
 
-  // Fetch products on mount
   useEffect(() => {
     fetchProducts();
   }, []);
@@ -28,14 +31,18 @@ const Marketplace = () => {
     }
   };
 
-  // Filter products
+  const handleAddToCart = (product) => {
+    addToCart(product, 1);
+    // Show success feedback
+    alert(`Added ${product.title} to cart!`);
+  };
+
   const filteredProducts = products.filter(product => {
     const matchesSearch = product.title.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === 'all' || product.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
 
-  // Get unique categories
   const categories = ['all', ...new Set(products.map(p => p.category))];
 
   if (loading) {
@@ -49,7 +56,16 @@ const Marketplace = () => {
   return (
     <div className="min-h-screen bg-gray-50 p-4">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-3xl font-bold mb-6">Marketplace</h1>
+        {/* Header with Cart */}
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-bold">Marketplace</h1>
+          <button
+            onClick={() => navigate('/checkout')}
+            className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 flex items-center gap-2"
+          >
+            🛒 Cart ({getCartCount()})
+          </button>
+        </div>
 
         {/* Search and Filter */}
         <div className="bg-white p-4 rounded-lg shadow mb-6">
@@ -81,7 +97,6 @@ const Marketplace = () => {
           </div>
         )}
 
-        {/* Product Grid */}
         {filteredProducts.length === 0 ? (
           <div className="text-center py-12 bg-white rounded-lg">
             <p className="text-gray-500">No products found</p>
@@ -110,16 +125,20 @@ const Marketplace = () => {
                   <p className="text-gray-700 text-sm mb-3 line-clamp-2">
                     {product.description || 'No description'}
                   </p>
-                  <div className="flex justify-between items-center">
+                  <div className="flex justify-between items-center mb-3">
                     <span className="text-green-600 font-bold text-xl">
-                      ${product.price}
+                      ${product.price}/kg
                     </span>
                     <span className="text-sm text-gray-500">
-                      {product.quantity} available
+                      {product.quantity}kg available
                     </span>
                   </div>
-                  <button className="w-full mt-3 bg-green-500 text-white py-2 rounded-lg hover:bg-green-600 transition">
-                    Add to Cart
+                  <button
+                    onClick={() => handleAddToCart(product)}
+                    disabled={product.quantity <= 0}
+                    className="w-full bg-green-500 text-white py-2 rounded-lg hover:bg-green-600 transition disabled:bg-gray-300 disabled:cursor-not-allowed"
+                  >
+                    {product.quantity <= 0 ? 'Out of Stock' : 'Add to Cart'}
                   </button>
                 </div>
               </div>

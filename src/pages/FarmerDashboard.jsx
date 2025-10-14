@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { productAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import ImageUpload from '../components/ImageUpload'; // ✅ Import ImageUpload
 
 const FarmerDashboard = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [message, setMessage] = useState('');
+  const [editingProduct, setEditingProduct] = useState(null); // ✅ new
   const { user } = useAuth();
 
   const [formData, setFormData] = useState({
@@ -46,8 +48,15 @@ const FarmerDashboard = () => {
     setMessage('');
 
     try {
-      await productAPI.create(formData);
-      setMessage('Product created successfully!');
+      if (editingProduct) {
+        await productAPI.update(editingProduct.id, formData);
+        setMessage('Product updated successfully!');
+        setEditingProduct(null);
+      } else {
+        await productAPI.create(formData);
+        setMessage('Product created successfully!');
+      }
+
       setShowForm(false);
       setFormData({
         title: '',
@@ -59,7 +68,33 @@ const FarmerDashboard = () => {
       });
       fetchMyProducts();
     } catch (err) {
-      setMessage(err.response?.data?.error || 'Failed to create product');
+      setMessage(err.response?.data?.error || 'Failed to save product');
+    }
+  };
+
+  const handleEdit = (product) => {
+    setEditingProduct(product);
+    setFormData({
+      title: product.title,
+      category: product.category,
+      description: product.description || '',
+      quantity: product.quantity,
+      price: product.price,
+      imageUrl: product.imageUrl || ''
+    });
+    setShowForm(true);
+  };
+
+  const handleDelete = async (productId) => {
+    if (!window.confirm('Are you sure you want to delete this product?')) return;
+
+    setMessage('');
+    try {
+      await productAPI.delete(productId);
+      setMessage('Product deleted successfully!');
+      fetchMyProducts();
+    } catch (err) {
+      setMessage(err.response?.data?.error || 'Failed to delete product');
     }
   };
 
@@ -73,18 +108,25 @@ const FarmerDashboard = () => {
             <p className="text-gray-600">Welcome back, {user?.name}!</p>
           </div>
           <button
-            onClick={() => setShowForm(!showForm)}
+            onClick={() => {
+              setShowForm(!showForm);
+              if (!showForm) setEditingProduct(null);
+            }}
             className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700"
           >
-            {showForm ? 'Cancel' : '+ Add Product'}
+            {showForm ? 'Cancel' : editingProduct ? 'Edit Product' : '+ Add Product'}
           </button>
         </div>
 
         {/* Success/Error Message */}
         {message && (
-          <div className={`p-4 rounded-lg mb-4 ${
-            message.includes('success') ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-          }`}>
+          <div
+            className={`p-4 rounded-lg mb-4 ${
+              message.includes('success')
+                ? 'bg-green-100 text-green-700'
+                : 'bg-red-100 text-red-700'
+            }`}
+          >
             {message}
           </div>
         )}
@@ -92,7 +134,9 @@ const FarmerDashboard = () => {
         {/* Product Form */}
         {showForm && (
           <div className="bg-white p-6 rounded-lg shadow mb-6">
-            <h2 className="text-xl font-bold mb-4">Create New Product</h2>
+            <h2 className="text-xl font-bold mb-4">
+              {editingProduct ? 'Edit Product' : 'Create New Product'}
+            </h2>
             <form onSubmit={handleSubmit}>
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
@@ -166,15 +210,13 @@ const FarmerDashboard = () => {
                   ></textarea>
                 </div>
 
+                {/* ✅ Replace image URL input with ImageUpload component */}
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium mb-1">Image URL (optional)</label>
-                  <input
-                    type="url"
-                    name="imageUrl"
-                    value={formData.imageUrl}
-                    onChange={handleChange}
-                    className="w-full border rounded-lg px-4 py-2"
-                    placeholder="https://example.com/image.jpg"
+                  <ImageUpload
+                    currentImage={formData.imageUrl}
+                    onUploadSuccess={(url) =>
+                      setFormData({ ...formData, imageUrl: url })
+                    }
                   />
                 </div>
               </div>
@@ -183,7 +225,7 @@ const FarmerDashboard = () => {
                 type="submit"
                 className="mt-4 bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700"
               >
-                Create Product
+                {editingProduct ? 'Update Product' : 'Create Product'}
               </button>
             </form>
           </div>
@@ -222,10 +264,16 @@ const FarmerDashboard = () => {
                       <span className="text-sm text-gray-500">{product.quantity}kg</span>
                     </div>
                     <div className="mt-3 flex gap-2">
-                      <button className="flex-1 bg-blue-500 text-white py-1 rounded hover:bg-blue-600 text-sm">
+                      <button
+                        onClick={() => handleEdit(product)}
+                        className="flex-1 bg-blue-500 text-white py-1 rounded hover:bg-blue-600 text-sm"
+                      >
                         Edit
                       </button>
-                      <button className="flex-1 bg-red-500 text-white py-1 rounded hover:bg-red-600 text-sm">
+                      <button
+                        onClick={() => handleDelete(product.id)}
+                        className="flex-1 bg-red-500 text-white py-1 rounded hover:bg-red-600 text-sm"
+                      >
                         Delete
                       </button>
                     </div>

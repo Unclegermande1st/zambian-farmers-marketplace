@@ -1,4 +1,3 @@
-// src/services/api.js
 import axios from 'axios';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
@@ -49,8 +48,8 @@ export const productAPI = {
   getMy: () => api.get('/products/my'),
   create: (productData) => api.post('/products/create', productData),
   getById: (id) => api.get(`/products/${id}`),
-  update: (id, data) => api.patch(`/products/${id}`, data),
-  delete: (id) => api.delete(`/products/${id}`),
+  update: (id, data) => api.put(`/products/${id}`, data), // ✅ updated to match backend
+  delete: (id) => api.delete(`/products/${id}`),          // ✅ soft delete
 };
 
 // ============ ORDER ENDPOINTS ============
@@ -81,7 +80,7 @@ export const adminAPI = {
   getUserById: (id) => api.get(`/admin/users/${id}`),
   updateUserStatus: (id, status) => api.patch(`/admin/users/${id}/status`, { status }),
   getVerifications: () => api.get('/admin/verifications'),
-  reviewVerification: (id, status, reason) => 
+  reviewVerification: (id, status, reason) =>
     api.patch(`/admin/verifications/${id}`, { status, reason }),
   getAllOrders: () => api.get('/admin/orders'),
 };
