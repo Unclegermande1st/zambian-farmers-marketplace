@@ -11,7 +11,7 @@ function Register() {
     firstName: "",
     lastName: "",
     gender: "",
-    phone: "",
+    email: "",
     nrc: "",
     password: "",
     confirmPassword: "",
@@ -19,13 +19,14 @@ function Register() {
   });
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [otpSent, setOtpSent] = useState(false);
   const navigate = useNavigate();
 
-  // Navigation between steps
+  // Step navigation
   const handleNext = () => setStep((prev) => prev + 1);
   const handleBack = () => setStep((prev) => prev - 1);
 
-  // Handle input
+  // Input change
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -33,41 +34,51 @@ function Register() {
     });
   };
 
-  // Registration step (send data to backend)
-  const handleRegisterSubmit = async () => {
+  // Send OTP to email
+  const handleSendOTP = async () => {
+    if (!formData.email) {
+      setMessage("Please enter your email address");
+      return;
+    }
+
     setLoading(true);
     setMessage("");
     try {
       const fullName = `${formData.firstName} ${formData.lastName}`;
       const res = await authAPI.register({
         name: fullName,
-        email: formData.phone,
-        phone: formData.phone,
+        email: formData.email,
         password: formData.password,
         role: formData.role,
       });
 
-      localStorage.setItem("pendingEmail", formData.phone);
-      setMessage(res.data.message || "OTP sent to your phone/email");
-      handleNext(); // Move to OTP verification
+      localStorage.setItem("pendingEmail", formData.email);
+      setMessage(res.data.message || "OTP sent to your email! Check your inbox.");
+      setOtpSent(true);
     } catch (err) {
-      setMessage(err.response?.data?.error || "Registration failed");
+      setMessage(err.response?.data?.error || "Failed to send OTP. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
-  // OTP verification step
+  // Verify OTP
   const handleOTPVerify = async () => {
+    if (!otp) {
+      setMessage("Please enter the OTP");
+      return;
+    }
+
     setLoading(true);
     setMessage("");
     try {
       const email = localStorage.getItem("pendingEmail");
       await authAPI.verifyOTP(email, otp);
-      setMessage("Verification successful! Redirecting to login...");
-      setTimeout(() => navigate("/login"), 1500);
+      setMessage("✅ Verification successful! Redirecting to login...");
+      localStorage.removeItem("pendingEmail");
+      setTimeout(() => navigate("/login"), 2000);
     } catch (err) {
-      setMessage(err.response?.data?.error || "OTP verification failed");
+      setMessage(err.response?.data?.error || "Invalid or expired OTP. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -76,10 +87,8 @@ function Register() {
   // Handle submit for current step
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (step === 2) {
+    if (step === 2 && otpSent) {
       handleOTPVerify();
-    } else if (step === 5) {
-      handleRegisterSubmit();
     }
   };
 
@@ -99,7 +108,9 @@ function Register() {
         {message && (
           <div
             className={`alert ${
-              message.includes("failed") ? "alert-danger" : "alert-success"
+              message.includes("failed") || message.includes("Invalid") || message.includes("expired")
+                ? "alert-danger"
+                : "alert-success"
             }`}
           >
             {message}
@@ -111,7 +122,7 @@ function Register() {
           {step === 1 && (
             <div className="form-step">
               <div className="input-group">
-                <label htmlFor="firstName">First Name</label>
+                <label htmlFor="firstName">First Name *</label>
                 <input
                   type="text"
                   id="firstName"
@@ -124,7 +135,7 @@ function Register() {
               </div>
 
               <div className="input-group">
-                <label htmlFor="lastName">Last Name</label>
+                <label htmlFor="lastName">Last Name *</label>
                 <input
                   type="text"
                   id="lastName"
@@ -140,33 +151,17 @@ function Register() {
                 <label>Gender</label>
                 <div className="gender-options">
                   <label>
-                    <input
-                      type="radio"
-                      name="gender"
-                      value="male"
-                      onChange={handleChange}
-                    />{" "}
-                    Male
+                    <input type="radio" name="gender" value="male" onChange={handleChange} /> Male
                   </label>
                   <label>
-                    <input
-                      type="radio"
-                      name="gender"
-                      value="female"
-                      onChange={handleChange}
-                    />{" "}
-                    Female
+                    <input type="radio" name="gender" value="female" onChange={handleChange} /> Female
                   </label>
                 </div>
               </div>
 
               <div className="input-group">
-                <label>I am a:</label>
-                <select
-                  name="role"
-                  value={formData.role}
-                  onChange={handleChange}
-                >
+                <label>I am a: *</label>
+                <select name="role" value={formData.role} onChange={handleChange} required>
                   <option value="farmer">Farmer</option>
                   <option value="buyer">Buyer</option>
                 </select>
@@ -178,50 +173,83 @@ function Register() {
             </div>
           )}
 
-          {/* Step 2: Phone & OTP */}
+          {/* Step 2: Email & OTP */}
           {step === 2 && (
             <div className="form-step">
               <div className="input-group">
-                <label htmlFor="phone">Phone Number</label>
+                <label htmlFor="email">Email Address *</label>
                 <input
-                  type="text"
-                  id="phone"
-                  name="phone"
-                  placeholder="Enter your phone number"
-                  value={formData.phone}
+                  type="email"
+                  id="email"
+                  name="email"
+                  placeholder="Enter your email address"
+                  value={formData.email}
                   onChange={handleChange}
                   required
+                  disabled={otpSent}
                 />
               </div>
 
-              <button
-                type="button"
-                onClick={handleRegisterSubmit}
-                disabled={loading}
-              >
-                {loading ? "Sending OTP..." : "Verify Number"}
-              </button>
-
-              <div className="input-group">
-                <label htmlFor="otp">Enter OTP</label>
-                <input
-                  type="text"
-                  id="otp"
-                  placeholder="Enter the code sent to you"
-                  value={otp}
-                  onChange={(e) => setOtp(e.target.value)}
-                  required
-                />
-              </div>
-
-              <div className="step-actions">
-                <button type="button" onClick={handleBack}>
-                  Back
+              {!otpSent && (
+                <button
+                  type="button"
+                  onClick={handleSendOTP}
+                  disabled={loading || !formData.email}
+                >
+                  {loading ? "Sending OTP..." : "Send Verification Code"}
                 </button>
-                <button type="submit" disabled={loading}>
-                  {loading ? "Verifying..." : "Confirm OTP"}
-                </button>
-              </div>
+              )}
+
+              {otpSent && (
+                <>
+                  <div className="input-group">
+                    <label htmlFor="otp">Enter OTP Code *</label>
+                    <input
+                      type="text"
+                      id="otp"
+                      placeholder="Enter the 6-digit code"
+                      value={otp}
+                      onChange={(e) => setOtp(e.target.value)}
+                      maxLength="6"
+                      required
+                    />
+                    <small style={{ color: '#666', marginTop: '5px' }}>
+                      Check your email for the verification code
+                    </small>
+                  </div>
+
+                  <div className="step-actions">
+                    <button type="button" onClick={handleBack}>
+                      Back
+                    </button>
+                    <button type="submit" disabled={loading || !otp}>
+                      {loading ? "Verifying..." : "Verify & Continue"}
+                    </button>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleSendOTP}
+                    disabled={loading}
+                    style={{
+                      background: 'transparent',
+                      color: '#667eea',
+                      textDecoration: 'underline',
+                      marginTop: '10px'
+                    }}
+                  >
+                    Resend OTP
+                  </button>
+                </>
+              )}
+
+              {!otpSent && (
+                <div className="step-actions">
+                  <button type="button" onClick={handleBack}>
+                    Back
+                  </button>
+                </div>
+              )}
             </div>
           )}
 
@@ -237,8 +265,10 @@ function Register() {
                   placeholder="Enter your NRC number"
                   value={formData.nrc}
                   onChange={handleChange}
-                  required
                 />
+                <small style={{ color: '#666', marginTop: '5px' }}>
+                  Optional - can be added later for verification
+                </small>
               </div>
 
               <div className="step-actions">
@@ -252,13 +282,16 @@ function Register() {
             </div>
           )}
 
-          {/* Step 4: Face ID Upload */}
+          {/* Step 4: Face ID */}
           {step === 4 && (
             <div className="form-step">
-              <p>Use your webcam or upload a photo for Face ID verification.</p>
+              <p>Upload a photo for identity verification (Optional)</p>
               <div className="input-group">
                 <label htmlFor="faceId">Upload Photo</label>
                 <input type="file" id="faceId" accept="image/*" />
+                <small style={{ color: '#666', marginTop: '5px' }}>
+                  Can be completed later from your profile
+                </small>
               </div>
 
               <div className="step-actions">
@@ -276,7 +309,7 @@ function Register() {
           {step === 5 && (
             <div className="form-step">
               <div className="input-group">
-                <label htmlFor="password">Password</label>
+                <label htmlFor="password">Password *</label>
                 <input
                   type="password"
                   id="password"
@@ -285,11 +318,12 @@ function Register() {
                   value={formData.password}
                   onChange={handleChange}
                   required
+                  minLength="6"
                 />
               </div>
 
               <div className="input-group">
-                <label htmlFor="confirmPassword">Confirm Password</label>
+                <label htmlFor="confirmPassword">Confirm Password *</label>
                 <input
                   type="password"
                   id="confirmPassword"
@@ -305,15 +339,29 @@ function Register() {
                 <button type="button" onClick={handleBack}>
                   Back
                 </button>
-                <button type="submit" disabled={loading}>
-                  {loading ? "Submitting..." : "Submit"}
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (formData.password !== formData.confirmPassword) {
+                      setMessage("Passwords do not match!");
+                      return;
+                    }
+                    if (formData.password.length < 6) {
+                      setMessage("Password must be at least 6 characters!");
+                      return;
+                    }
+                    setMessage("✅ Registration complete! Redirecting to login...");
+                    setTimeout(() => navigate("/login"), 2000);
+                  }}
+                  disabled={loading}
+                >
+                  Complete Registration
                 </button>
               </div>
             </div>
           )}
         </form>
 
-        {/* Social login options (only step 1) */}
         {step === 1 && (
           <>
             <div className="divider">
@@ -321,9 +369,9 @@ function Register() {
             </div>
 
             <div className="social-login">
-              <button className="social-btn facebook">Facebook</button>
-              <button className="social-btn google">Google</button>
-              <button className="social-btn twitter">Twitter</button>
+              <button className="social-btn facebook" type="button">Facebook</button>
+              <button className="social-btn google" type="button">Google</button>
+              <button className="social-btn twitter" type="button">Twitter</button>
             </div>
 
             <div className="login-link">

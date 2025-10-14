@@ -1,15 +1,84 @@
 /* src/styles/landing.css */
 
+/* Navbar */
+.landing-navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: 10px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(6px);
+  z-index: 10;
+}
+
+.logo {
+  font-size: 28px;
+  font-weight: bold;
+  color: #fff;
+}
+
+.nav-links {
+  list-style: none;
+  display: flex;
+  gap: 30px;
+  margin: 0;
+}
+
+.nav-links a {
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s;
+}
+
+.nav-links a:hover {
+  color: #a3bffa;
+}
+
+.nav-btn {
+  padding: 8px 18px;
+  border: 1px solid white;
+  border-radius: 25px;
+}
+
+.nav-btn.highlight {
+  background-color: white;
+  color: #667eea;
+}
+
+.nav-btn.highlight:hover {
+  background-color: #e5e5ff;
+}
+
+/* Landing Hero Section */
 .landing {
+  position: relative;
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: url('../assets/farm-background.jpg') no-repeat center center/cover;
   padding: 20px;
 }
 
+.landing::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.35);
+  z-index: 0;
+}
+
 .hero-content {
+  position: relative;
+  z-index: 1;
   text-align: center;
   color: white;
   max-width: 800px;
@@ -34,8 +103,7 @@
   margin-bottom: 40px;
   opacity: 0.9;
   max-width: 600px;
-  margin-left: auto;
-  margin-right: auto;
+  margin: 0 auto;
   animation: fadeInUp 1.4s ease-out;
 }
 
@@ -80,48 +148,91 @@
   transform: translateY(-3px);
 }
 
+/* Scroll-down Indicator */
+.scroll-down {
+  position: absolute;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 28px;
+  color: white;
+  animation: bounce 1.5s infinite;
+  cursor: pointer;
+}
+
+/* Info Sections */
+.info-section {
+  text-align: center;
+  padding: 100px 20px;
+  background: #f8fafc;
+  color: #2d3748;
+}
+
+.info-section h2 {
+  font-size: 36px;
+  margin-bottom: 20px;
+}
+
+.info-section p {
+  font-size: 18px;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.contact-section {
+  background: #edf2f7;
+}
+
+/* Animations */
 @keyframes fadeInDown {
-  from {
-    opacity: 0;
-    transform: translateY(-30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(-30px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translate(-50%, 0); }
+  50% { transform: translate(-50%, -10px); }
 }
 
 @media (max-width: 768px) {
+  .landing-navbar {
+    flex-direction: column;
+    gap: 10px;
+    padding: 15px 20px;
+  }
+
+  .nav-links {
+    flex-wrap: wrap;
+    gap: 15px;
+  }
+
   .hero-content h1 {
     font-size: 36px;
   }
-  
+
   .hero-content h2 {
     font-size: 24px;
   }
-  
+
   .hero-content p {
     font-size: 16px;
   }
-  
+
   .cta-buttons {
     flex-direction: column;
     align-items: center;
   }
-  
+
   .btn {
     width: 100%;
     max-width: 300px;
   }
+}
+html {
+  scroll-behavior: smooth;
 }

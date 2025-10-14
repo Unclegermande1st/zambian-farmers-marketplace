@@ -6,7 +6,7 @@ function Dashboard() {
     <div className="dashboard">
       {/* Sidebar */}
       <aside className="sidebar">
-        <h2 className="logo">SmartMarket</h2>
+        <h2 className="logo">AgroMarketplus</h2>
         <ul className="menu">
           <li>🏠 Home</li>
           <li>💬 Messaging</li>

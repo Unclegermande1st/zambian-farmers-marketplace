@@ -1,8 +1,11 @@
+// src/App.jsx
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
+import { ToastProvider } from './context/ToastContext';
 import ProtectedRoute from './components/ProtectedRoute';
+import Navbar from './components/Navbar';
 
 // Page imports
 import Landing from './pages/Landing';
@@ -14,9 +17,7 @@ import LoginForm from './components/LoginForm';
 import Dashboard from './pages/dashboard';
 import Checkout from './pages/Checkout';
 import PaymentSuccess from './pages/PaymentSuccess';
-import Cart from './pages/Cart'; // ✅ Added Cart import
-
-// Multi-role and AI pages
+import Cart from './pages/Cart';
 import AdminDashboard from './pages/AdminDashboard';
 import AssistantChat from './pages/AssistantChat';
 import FarmerDashboard from './pages/FarmerDashboard';
@@ -26,105 +27,133 @@ function App() {
   return (
     <AuthProvider>
       <CartProvider>
-        <Router>
-          <Routes>
-            {/* Public Routes */}
-            <Route path="/" element={<Landing />} />
-            <Route path="/login" element={<LoginForm />} />
-            <Route path="/register" element={<Register />} />
+        <ToastProvider>
+          <Router>
+            <Routes>
+              {/* Public Routes */}
+              <Route path="/" element={<Landing />} />
+              <Route path="/login" element={<LoginForm />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/articles" element={<Articles />} />
 
-            {/* Protected Buyer Routes */}
-            <Route 
-              path="/home" 
-              element={
-                <ProtectedRoute>
-                  <Home />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/marketplace" 
-              element={
-                <ProtectedRoute>
-                  <Marketplace />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/checkout" 
-              element={
-                <ProtectedRoute>
-                  <Checkout />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/cart"  // ✅ Added Cart route
-              element={
-                <ProtectedRoute>
-                  <Cart />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/payment-success" 
-              element={
-                <ProtectedRoute>
-                  <PaymentSuccess />
-                </ProtectedRoute>
-              } 
-            />
+              {/* Protected Routes with Navbar */}
+              <Route
+                path="/home"
+                element={
+                  <ProtectedRoute>
+                    <>
+                      <Navbar />
+                      <Home />
+                    </>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/marketplace"
+                element={
+                  <ProtectedRoute>
+                    <>
+                      <Navbar />
+                      <Marketplace />
+                    </>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/checkout"
+                element={
+                  <ProtectedRoute>
+                    <>
+                      <Navbar />
+                      <Checkout />
+                    </>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/cart"
+                element={
+                  <ProtectedRoute>
+                    <>
+                      <Navbar />
+                      <Cart />
+                    </>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/payment-success"
+                element={
+                  <ProtectedRoute>
+                    <>
+                      <Navbar />
+                      <PaymentSuccess />
+                    </>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/chats"
+                element={
+                  <ProtectedRoute>
+                    <>
+                      <Navbar />
+                      <Chats />
+                    </>
+                  </ProtectedRoute>
+                }
+              />
 
-            {/* Communication */}
-            <Route 
-              path="/chats" 
-              element={
-                <ProtectedRoute>
-                  <Chats />
-                </ProtectedRoute>
-              } 
-            />
+              {/* Dashboards */}
+              <Route
+                path="/dashboard"
+                element={
+                  <ProtectedRoute>
+                    <>
+                      <Navbar />
+                      <Dashboard />
+                    </>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/farmer-dashboard"
+                element={
+                  <ProtectedRoute requiredRole="farmer">
+                    <>
+                      <Navbar />
+                      <FarmerDashboard />
+                    </>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin"
+                element={
+                  <ProtectedRoute requiredRole="admin">
+                    <>
+                      <Navbar />
+                      <AdminDashboard />
+                    </>
+                  </ProtectedRoute>
+                }
+              />
 
-            {/* Resources */}
-            <Route path="/articles" element={<Articles />} />
-
-            {/* Dashboards */}
-            <Route 
-              path="/dashboard" 
-              element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/farmer-dashboard" 
-              element={
-                <ProtectedRoute requiredRole="farmer">
-                  <FarmerDashboard />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/admin" 
-              element={
-                <ProtectedRoute requiredRole="admin">
-                  <AdminDashboard />
-                </ProtectedRoute>
-              } 
-            />
-
-            {/* AI Assistant */}
-            <Route 
-              path="/assistant" 
-              element={
-                <ProtectedRoute>
-                  <AssistantChat />
-                </ProtectedRoute>
-              } 
-            />
-          </Routes>
-        </Router>
+              {/* AI Assistant */}
+              <Route
+                path="/assistant"
+                element={
+                  <ProtectedRoute>
+                    <>
+                      <Navbar />
+                      <AssistantChat />
+                    </>
+                  </ProtectedRoute>
+                }
+              />
+            </Routes>
+          </Router>
+        </ToastProvider>
       </CartProvider>
     </AuthProvider>
   );
