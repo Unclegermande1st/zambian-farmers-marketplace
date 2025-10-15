@@ -1,4 +1,4 @@
-// src/pages/FarmerDashboard.jsx
+// src/pages/FarmerDashboard.jsx (ENHANCED with Order Management)
 import React, { useState, useEffect } from 'react';
 import { productAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
@@ -8,11 +8,11 @@ import axios from 'axios';
 
 const FarmerDashboard = () => {
   const [products, setProducts] = useState([]);
+  const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [activeTab, setActiveTab] = useState('overview');
-  const [message, setMessage] = useState('');
   const { user } = useAuth();
   const toast = useToast();
 
@@ -21,7 +21,8 @@ const FarmerDashboard = () => {
     totalSales: 0,
     totalEarnings: 0,
     lowStockItems: 0,
-    recentOrders: []
+    pendingOrders: 0,
+    completedOrders: 0
   });
 
   const [formData, setFormData] = useState({
@@ -33,6 +34,8 @@ const FarmerDashboard = () => {
     imageUrl: ''
   });
 
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+
   useEffect(() => {
     fetchDashboardData();
   }, []);
@@ -40,34 +43,43 @@ const FarmerDashboard = () => {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      setMessage('');
-
-      // Fetch products
-      const productsRes = await productAPI.getMy();
-      setProducts(productsRes.data);
-
-      // Fetch orders (for stats)
       const token = localStorage.getItem('token');
-      const ordersRes = await axios.get(
-        `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/orders/my`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
 
-      const orders = ordersRes.data;
-      const totalSales = orders.length;
-      const totalEarnings = orders.reduce((sum, o) => sum + (o.total || 0), 0);
+      // Fetch products and orders
+      const [productsRes, ordersRes] = await Promise.all([
+        productAPI.getMy(),
+        axios.get(`${API_URL}/orders/my`, {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+      ]);
+
+      setProducts(productsRes.data);
+      setOrders(ordersRes.data);
+
+      // Calculate stats
+      const totalSales = ordersRes.data.length;
+      const totalEarnings = ordersRes.data.reduce((sum, order) => {
+        const orderTotal = order.products.reduce(
+          (s, p) => s + p.price * p.quantity,
+          0
+        );
+        return sum + orderTotal;
+      }, 0);
+
       const lowStockItems = productsRes.data.filter(p => p.quantity < 10).length;
+      const pendingOrders = ordersRes.data.filter(o => o.status === 'pending').length;
+      const completedOrders = ordersRes.data.filter(o => o.status === 'delivered').length;
 
       setStats({
         totalProducts: productsRes.data.length,
         totalSales,
         totalEarnings: totalEarnings.toFixed(2),
         lowStockItems,
-        recentOrders: orders.slice(0, 5)
+        pendingOrders,
+        completedOrders
       });
     } catch (err) {
       console.error('Failed to load dashboard data:', err);
-      setMessage('Failed to load dashboard data');
       toast.error('Failed to load dashboard data');
     } finally {
       setLoading(false);
@@ -83,7 +95,6 @@ const FarmerDashboard = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setMessage('');
 
     try {
       if (editingProduct) {
@@ -138,6 +149,33 @@ const FarmerDashboard = () => {
     }
   };
 
+  const handleOrderStatusUpdate = async (orderId, newStatus) => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.patch(
+        `${API_URL}/orders/${orderId}/status`,
+        { status: newStatus },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      toast.success(`Order status updated to ${newStatus}`);
+      fetchDashboardData();
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to update order status');
+    }
+  };
+
+  const getStatusColor = (status) => {
+    const colors = {
+      pending: 'bg-yellow-100 text-yellow-700',
+      processing: 'bg-blue-100 text-blue-700',
+      shipped: 'bg-purple-100 text-purple-700',
+      delivered: 'bg-green-100 text-green-700',
+      cancelled: 'bg-red-100 text-red-700'
+    };
+    return colors[status] || 'bg-gray-100 text-gray-700';
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -167,37 +205,25 @@ const FarmerDashboard = () => {
           </button>
         </div>
 
-        {/* Message */}
-        {message && (
-          <div
-            className={`p-4 rounded-lg mb-4 ${
-              message.includes('Failed')
-                ? 'bg-red-100 text-red-700'
-                : 'bg-green-100 text-green-700'
-            }`}
-          >
-            {message}
-          </div>
-        )}
-
         {/* Tabs */}
         <div className="bg-white rounded-lg shadow mb-6">
-          <div className="flex border-b">
-            {['overview', 'products', 'orders'].map((tab) => (
+          <div className="flex border-b overflow-x-auto">
+            {[
+              { id: 'overview', label: '📊 Overview' },
+              { id: 'products', label: `📦 Products (${products.length})` },
+              { id: 'orders', label: `🛒 Orders (${orders.length})` },
+              { id: 'analytics', label: '📈 Analytics' }
+            ].map((tab) => (
               <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`px-6 py-3 font-medium ${
-                  activeTab === tab
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`px-6 py-3 font-medium whitespace-nowrap ${
+                  activeTab === tab.id
                     ? 'border-b-2 border-green-600 text-green-600'
                     : 'text-gray-600'
                 }`}
               >
-                {tab === 'overview'
-                  ? '📊 Overview'
-                  : tab === 'products'
-                  ? `📦 Products (${products.length})`
-                  : `🛒 Orders (${stats.totalSales})`}
+                {tab.label}
               </button>
             ))}
           </div>
@@ -213,7 +239,7 @@ const FarmerDashboard = () => {
                   <p className="text-3xl font-bold text-blue-600">{stats.totalProducts}</p>
                 </div>
                 <div className="bg-green-50 p-4 rounded-lg border border-green-200">
-                  <p className="text-sm text-gray-600">Total Sales</p>
+                  <p className="text-sm text-gray-600">Total Orders</p>
                   <p className="text-3xl font-bold text-green-600">{stats.totalSales}</p>
                 </div>
                 <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
@@ -221,18 +247,19 @@ const FarmerDashboard = () => {
                   <p className="text-3xl font-bold text-purple-600">${stats.totalEarnings}</p>
                 </div>
                 <div className="bg-orange-50 p-4 rounded-lg border border-orange-200">
-                  <p className="text-sm text-gray-600">Low Stock Items</p>
-                  <p className="text-3xl font-bold text-orange-600">{stats.lowStockItems}</p>
+                  <p className="text-sm text-gray-600">Pending Orders</p>
+                  <p className="text-3xl font-bold text-orange-600">{stats.pendingOrders}</p>
                 </div>
               </div>
 
+              {/* Recent Orders */}
               <div className="bg-gray-50 rounded-lg p-4">
                 <h3 className="font-bold mb-3">Recent Orders</h3>
-                {stats.recentOrders.length === 0 ? (
+                {orders.slice(0, 5).length === 0 ? (
                   <p className="text-gray-500 text-center py-4">No orders yet</p>
                 ) : (
                   <div className="space-y-2">
-                    {stats.recentOrders.map((order) => (
+                    {orders.slice(0, 5).map((order) => (
                       <div
                         key={order.id}
                         className="bg-white p-3 rounded flex justify-between items-center"
@@ -240,10 +267,17 @@ const FarmerDashboard = () => {
                         <div>
                           <p className="font-semibold">Order #{order.id.slice(0, 8)}</p>
                           <p className="text-sm text-gray-600">
-                            {new Date(order.createdAt).toLocaleDateString()}
+                            {order.products.length} item(s) • {new Date(order.createdAt).toLocaleDateString()}
                           </p>
                         </div>
-                        <p className="font-bold text-green-600">${order.total}</p>
+                        <div className="text-right">
+                          <p className="font-bold text-green-600">
+                            ${order.products.reduce((sum, p) => sum + p.price * p.quantity, 0).toFixed(2)}
+                          </p>
+                          <span className={`text-xs px-2 py-1 rounded ${getStatusColor(order.status)}`}>
+                            {order.status}
+                          </span>
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -353,7 +387,7 @@ const FarmerDashboard = () => {
               <h2 className="text-xl font-bold mb-4">My Products</h2>
               {products.length === 0 ? (
                 <p className="text-center py-8 text-gray-500">
-                  No products yet. Click “Add Product” to create your first listing!
+                  No products yet. Click "Add Product" to create your first listing!
                 </p>
               ) : (
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -410,33 +444,148 @@ const FarmerDashboard = () => {
           {/* ORDERS TAB */}
           {activeTab === 'orders' && (
             <div className="p-6">
-              <h2 className="text-xl font-bold mb-4">Order History</h2>
-              {stats.recentOrders.length === 0 ? (
+              <h2 className="text-xl font-bold mb-4">Order Management</h2>
+              {orders.length === 0 ? (
                 <div className="text-center py-12 text-gray-500">
                   <div className="text-4xl mb-2">📦</div>
                   <p>No orders yet</p>
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {stats.recentOrders.map((order) => (
+                  {orders.map((order) => (
                     <div key={order.id} className="bg-white border rounded-lg p-4">
-                      <div className="flex justify-between items-start mb-2">
+                      <div className="flex justify-between items-start mb-3">
                         <div>
                           <h3 className="font-bold">Order #{order.id.slice(0, 8)}</h3>
                           <p className="text-sm text-gray-600">
                             {new Date(order.createdAt).toLocaleString()}
                           </p>
                         </div>
-                        <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-semibold">
+                        <span className={`px-3 py-1 rounded-full text-sm font-semibold ${getStatusColor(order.status)}`}>
                           {order.status}
                         </span>
                       </div>
-                      <div className="border-t pt-2 mt-2">
-                        <p className="text-sm text-gray-600">Total Amount:</p>
-                        <p className="text-2xl font-bold text-green-600">${order.total}</p>
+
+                      {/* Order Items */}
+                      <div className="border-t pt-3 mb-3">
+                        <h4 className="font-semibold mb-2">Items:</h4>
+                        <div className="space-y-2">
+                          {order.products.map((product, idx) => (
+                            <div key={idx} className="flex justify-between text-sm">
+                              <span>{product.title} x {product.quantity}kg</span>
+                              <span className="font-semibold">${(product.price * product.quantity).toFixed(2)}</span>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="border-t mt-2 pt-2 flex justify-between font-bold">
+                          <span>Total:</span>
+                          <span className="text-green-600">
+                            ${order.products.reduce((sum, p) => sum + p.price * p.quantity, 0).toFixed(2)}
+                          </span>
+                        </div>
                       </div>
+
+                      {/* Status Update Actions */}
+                      {order.status !== 'delivered' && order.status !== 'cancelled' && (
+                        <div className="flex gap-2 border-t pt-3">
+                          <select
+                            onChange={(e) => handleOrderStatusUpdate(order.id, e.target.value)}
+                            className="flex-1 border rounded px-3 py-2 text-sm"
+                            defaultValue=""
+                          >
+                            <option value="" disabled>Update Status</option>
+                            {order.status === 'pending' && (
+                              <option value="processing">Mark as Processing</option>
+                            )}
+                            {(order.status === 'pending' || order.status === 'processing') && (
+                              <option value="shipped">Mark as Shipped</option>
+                            )}
+                            {order.status === 'shipped' && (
+                              <option value="delivered">Mark as Delivered</option>
+                            )}
+                          </select>
+                        </div>
+                      )}
                     </div>
                   ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ANALYTICS TAB */}
+          {activeTab === 'analytics' && (
+            <div className="p-6">
+              <h2 className="text-xl font-bold mb-4">Sales Analytics</h2>
+              
+              <div className="grid md:grid-cols-2 gap-6 mb-6">
+                {/* Order Status Breakdown */}
+                <div className="bg-white border rounded-lg p-4">
+                  <h3 className="font-bold mb-3">Order Status</h3>
+                  <div className="space-y-2">
+                    {[
+                      { status: 'pending', label: 'Pending', color: 'yellow' },
+                      { status: 'processing', label: 'Processing', color: 'blue' },
+                      { status: 'shipped', label: 'Shipped', color: 'purple' },
+                      { status: 'delivered', label: 'Delivered', color: 'green' },
+                      { status: 'cancelled', label: 'Cancelled', color: 'red' }
+                    ].map(({ status, label, color }) => {
+                      const count = orders.filter(o => o.status === status).length;
+                      const percentage = orders.length > 0 ? (count / orders.length * 100).toFixed(0) : 0;
+                      return (
+                        <div key={status}>
+                          <div className="flex justify-between text-sm mb-1">
+                            <span>{label}</span>
+                            <span className="font-semibold">{count} ({percentage}%)</span>
+                          </div>
+                          <div className="w-full bg-gray-200 rounded-full h-2">
+                            <div
+                              className={`bg-${color}-500 h-2 rounded-full`}
+                              style={{ width: `${percentage}%` }}
+                            ></div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Top Products */}
+                <div className="bg-white border rounded-lg p-4">
+                  <h3 className="font-bold mb-3">Top Products</h3>
+                  {products.length === 0 ? (
+                    <p className="text-gray-500 text-sm">No products yet</p>
+                  ) : (
+                    <div className="space-y-2">
+                      {products.slice(0, 5).map((product, idx) => (
+                        <div key={product.id} className="flex justify-between items-center">
+                          <div className="flex items-center gap-2">
+                            <span className="text-lg font-bold text-gray-400">#{idx + 1}</span>
+                            <span className="text-sm">{product.title}</span>
+                          </div>
+                          <span className="text-sm font-semibold text-green-600">
+                            ${product.price}/kg
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Low Stock Alert */}
+              {stats.lowStockItems > 0 && (
+                <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                  <h3 className="font-bold text-orange-800 mb-2">⚠️ Low Stock Alert</h3>
+                  <p className="text-sm text-orange-700">
+                    You have {stats.lowStockItems} product(s) with less than 10kg in stock.
+                  </p>
+                  <button
+                    onClick={() => setActiveTab('products')}
+                    className="mt-2 text-sm text-orange-600 underline hover:text-orange-800"
+                  >
+                    View Products
+                  </button>
                 </div>
               )}
             </div>

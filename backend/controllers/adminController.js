@@ -1,5 +1,6 @@
 // backend/controllers/adminController.js
 const { db } = require("../firebase");
+const { sendEmail, emailTemplates } = require("../services/emailService");
 
 /**
  * GET /api/admin/stats
@@ -21,7 +22,6 @@ exports.getSystemStats = async (req, res) => {
     const verified = users.filter(u => u.verification_status === "verified").length;
     const pending = users.filter(u => u.verification_status === "pending").length;
 
-    // Calculate total revenue
     const orders = ordersSnap.docs.map(doc => doc.data());
     const totalRevenue = orders.reduce((sum, order) => sum + (order.total || 0), 0);
 
@@ -51,9 +51,7 @@ exports.getSystemStats = async (req, res) => {
  */
 exports.getAllUsers = async (req, res) => {
   try {
-    const snapshot = await db.collection("users")
-      .orderBy("created_at", "desc")
-      .get();
+    const snapshot = await db.collection("users").orderBy("created_at", "desc").get();
 
     const users = snapshot.docs.map(doc => ({
       id: doc.id,
@@ -149,7 +147,7 @@ exports.getVerificationRequests = async (req, res) => {
 
 /**
  * PATCH /api/admin/verifications/:id
- * Approve or reject verification (merged version)
+ * Approve or reject verification with email notification
  */
 exports.reviewVerification = async (req, res) => {
   const { status, reason } = req.body;
@@ -160,6 +158,11 @@ exports.reviewVerification = async (req, res) => {
   }
 
   try {
+    const userDoc = await db.collection("users").doc(id).get();
+    if (!userDoc.exists) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
     const updates = {
       verification_status: status,
       updated_at: new Date()
@@ -173,6 +176,18 @@ exports.reviewVerification = async (req, res) => {
     }
 
     await db.collection("users").doc(id).update(updates);
+
+    // Send email notification (from updated version)
+    try {
+      const user = userDoc.data();
+      if (status === "verified") {
+        await sendEmail(user.email, emailTemplates.verificationApproved(user));
+      } else {
+        await sendEmail(user.email, emailTemplates.verificationRejected(user, reason));
+      }
+    } catch (emailError) {
+      console.warn("⚠️ Failed to send verification email:", emailError.message);
+    }
 
     res.json({
       message: `Verification ${status === "verified" ? "approved" : "rejected"} successfully`,
@@ -199,7 +214,6 @@ exports.getAllOrders = async (req, res) => {
     for (const doc of snapshot.docs) {
       const orderData = doc.data();
 
-      // Fetch buyer info
       const buyerDoc = await db.collection("users").doc(orderData.buyerId).get();
       const buyerName = buyerDoc.exists ? buyerDoc.data().name : "Unknown";
 
@@ -223,13 +237,11 @@ exports.getAllOrders = async (req, res) => {
 
 /**
  * GET /api/admin/products
+ * Get all products
  */
 exports.getAllProducts = async (req, res) => {
   try {
-    const snapshot = await db.collection("products")
-      .orderBy("createdAt", "desc")
-      .get();
-
+    const snapshot = await db.collection("products").orderBy("createdAt", "desc").get();
     const products = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     res.json(products);
   } catch (err) {

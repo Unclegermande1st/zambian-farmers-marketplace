@@ -4,21 +4,33 @@ const router = express.Router();
 const messageController = require('../controllers/messageController');
 const authenticate = require('../middleware/authMiddleware');
 
-// 🔒 Protected Routes: Require authentication
+// 🔒 All routes require authentication
 
-// Any logged-in user can send a message
+// Send a message
 router.post('/send', authenticate(), messageController.sendMessage);
 
-// Any logged-in user can view their inbox
+// Get inbox (received messages)
 router.get('/inbox', authenticate(), messageController.getInbox);
 
-// Any logged-in user can view their sent messages
+// Get sent messages
 router.get('/sent', authenticate(), messageController.getSent);
 
-// Get a single message by ID (must be sender or receiver)
+// Get unread message count
+router.get('/unread/count', authenticate(), messageController.getUnreadCount);
+
+// Get conversation with specific user
+router.get('/conversation/:userId', authenticate(), messageController.getConversation);
+
+// Get single message by ID (must be sender or receiver)
 router.get('/:id', authenticate(), messageController.getMessageById);
 
-// Example: Admin-only route (if needed in future)
+// Mark message as read
+router.patch('/:id/read', authenticate(), messageController.markAsRead);
+
+// Delete message (only sender can delete)
+router.delete('/:id', authenticate(), messageController.deleteMessage);
+
+// Example: Admin-only route (for future use)
 // router.get('/all', authenticate('admin'), messageController.getAllMessages);
 
 module.exports = router;
