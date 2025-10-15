@@ -17,8 +17,8 @@ router.delete('/users/:userId', adminController.deleteUser);
 
 // Verification management
 router.get('/verifications', adminController.getVerificationRequests);
-router.post('/approve-verification', adminController.approveVerification);
-router.post('/reject-verification', adminController.rejectVerification);
+// Updated route for reviewing verification requests
+router.patch('/verifications/:id', adminController.reviewVerification);
 
 // Order oversight
 router.get('/orders', adminController.getAllOrders);

@@ -3,14 +3,13 @@ const bcrypt = require("bcryptjs");
 const { db } = require("../firebase");
 const { saveOTP, verifyOTP } = require("./otpService");
 const { sendOTP } = require("./emailService");
-const { createToken } = require("./jwtUtils"); // ✅ Use centralized JWT
+const { createToken } = require("./jwtUtils");
 require("dotenv").config();
 
 // Helper: Generate 6-digit OTP
 const generateOTP = () => Math.floor(100000 + Math.random() * 900000).toString();
 
 // POST /api/auth/register
-// Registers a new user and sends OTP
 exports.register = async (req, res) => {
   const { name, email, phone, password, role } = req.body;
 
@@ -50,15 +49,18 @@ exports.register = async (req, res) => {
     // Generate OTP
     const otp = generateOTP();
 
+    // Debug log for OTP generation
+    console.log("💡 Generating OTP for:", email, "OTP:", otp);
+
     // Save OTP to Firestore
     await saveOTP(userId, email, otp);
 
-    // Send OTP via email (simulate or real)
+    // Send OTP via email
     try {
       await sendOTP(email, otp);
-      console.log(` OTP sent to ${email}: ${otp}`);
+      console.log(`✅ OTP sent to ${email}: ${otp}`);
     } catch (emailError) {
-      console.warn(` Failed to send OTP to ${email}:`, emailError.message);
+      console.warn(`⚠️ Failed to send OTP to ${email}:`, emailError.message);
       console.log(`🔐 [DEV MODE] OTP for ${email}: ${otp}`);
     }
 
@@ -74,7 +76,6 @@ exports.register = async (req, res) => {
 };
 
 // POST /api/auth/verify-otp
-// Verifies the OTP and marks user as verified
 exports.verifyOTP = async (req, res) => {
   const { email, otp } = req.body;
 
@@ -83,6 +84,9 @@ exports.verifyOTP = async (req, res) => {
   }
 
   try {
+    // Debug log for OTP verification attempt
+    console.log("💡 Verifying OTP for:", email, "OTP entered:", otp);
+
     const userId = await verifyOTP(email, otp);
     if (!userId) return res.status(400).json({ error: "Invalid or expired OTP" });
 
@@ -96,16 +100,17 @@ exports.verifyOTP = async (req, res) => {
 
     await userSnapshot.docs[0].ref.update({ verification_status: "verified" });
 
+    console.log(`✅ User verified successfully: ${email}`);
+
     res.json({ message: "Email verified successfully!" });
 
   } catch (err) {
-    console.error(" OTP verification error:", err);
+    console.error("❌ OTP verification error:", err);
     res.status(500).json({ error: "Internal server error. " + err.message });
   }
 };
 
 // POST /api/auth/login
-// Logs in user and returns JWT
 exports.login = async (req, res) => {
   const { email, password } = req.body;
 
@@ -114,7 +119,6 @@ exports.login = async (req, res) => {
   }
 
   try {
-    // Find user
     const userSnapshot = await db.collection("users")
       .where("email", "==", email)
       .limit(1)
@@ -125,17 +129,16 @@ exports.login = async (req, res) => {
     const userDoc = userSnapshot.docs[0];
     const userData = userDoc.data();
 
-    // Verify password
     const isMatch = await bcrypt.compare(password, userData.password);
     if (!isMatch) return res.status(401).json({ error: "Invalid credentials" });
 
-    // Verify email
     if (userData.verification_status !== "verified") {
       return res.status(403).json({ error: "Please verify your email first" });
     }
 
-    // Generate JWT
     const token = createToken({ userId: userDoc.id, role: userData.role });
+
+    console.log(`✅ User logged in: ${email}`);
 
     res.json({
       token,
@@ -146,7 +149,7 @@ exports.login = async (req, res) => {
     });
 
   } catch (err) {
-    console.error(" Login error:", err);
+    console.error("❌ Login error:", err);
     res.status(500).json({ error: "Internal server error. " + err.message });
   }
 };
