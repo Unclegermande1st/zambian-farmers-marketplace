@@ -34,10 +34,10 @@ function Register() {
     });
   };
 
-  // Send OTP to email
+  // Send OTP to email (this will register the user and send OTP)
   const handleSendOTP = async () => {
-    if (!formData.email) {
-      setMessage("Please enter your email address");
+    if (!formData.email || !formData.password) {
+      setMessage("Please enter your email and password");
       return;
     }
 
@@ -50,13 +50,38 @@ function Register() {
         email: formData.email,
         password: formData.password,
         role: formData.role,
+        phone: formData.phone || "", // Add phone if available
       });
 
       localStorage.setItem("pendingEmail", formData.email);
-      setMessage(res.data.message || "OTP sent to your email! Check your inbox.");
+      setMessage(res.data.message || "Registration successful! OTP sent to your email.");
       setOtpSent(true);
+      console.log("Registration response:", res.data);
     } catch (err) {
-      setMessage(err.response?.data?.error || "Failed to send OTP. Please try again.");
+      console.error("Registration error:", err);
+      setMessage(err.response?.data?.error || "Failed to register. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Resend OTP
+  const handleResendOTP = async () => {
+    const email = localStorage.getItem("pendingEmail") || formData.email;
+    if (!email) {
+      setMessage("No email found to resend OTP");
+      return;
+    }
+
+    setLoading(true);
+    setMessage("");
+    try {
+      const res = await authAPI.resendOTP(email);
+      setMessage(res.data.message || "OTP resent to your email!");
+      console.log("Resend OTP response:", res.data);
+    } catch (err) {
+      console.error("Resend OTP error:", err);
+      setMessage(err.response?.data?.error || "Failed to resend OTP. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -74,9 +99,25 @@ function Register() {
     try {
       const email = localStorage.getItem("pendingEmail");
       await authAPI.verifyOTP(email, otp);
-      setMessage("✅ Verification successful! Redirecting to login...");
+      setMessage("✅ Verification successful! Redirecting...");
       localStorage.removeItem("pendingEmail");
-      setTimeout(() => navigate("/login"), 2000);
+      
+      // Redirect based on role
+      setTimeout(() => {
+        switch (formData.role) {
+          case 'farmer':
+            navigate('/farmer-dashboard');
+            break;
+          case 'buyer':
+            navigate('/marketplace');
+            break;
+          case 'admin':
+            navigate('/admin');
+            break;
+          default:
+            navigate('/login');
+        }
+      }, 2000);
     } catch (err) {
       setMessage(err.response?.data?.error || "Invalid or expired OTP. Please try again.");
     } finally {
@@ -94,11 +135,6 @@ function Register() {
 
   return (
     <div className="register-container">
-      <div className="register-left">
-        <h1>MarketPlus</h1>
-        <p>Empowering farmers with modern digital solutions.</p>
-      </div>
-
       <div className="register-right">
         <h2>Create Account</h2>
         <p className="register-subtitle">
@@ -173,7 +209,7 @@ function Register() {
             </div>
           )}
 
-          {/* Step 2: Email & OTP */}
+          {/* Step 2: Email & Password */}
           {step === 2 && (
             <div className="form-step">
               <div className="input-group">
@@ -190,13 +226,31 @@ function Register() {
                 />
               </div>
 
+              <div className="input-group">
+                <label htmlFor="password">Password *</label>
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  placeholder="Create a secure password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  required
+                  minLength="6"
+                  disabled={otpSent}
+                />
+                <small style={{ color: '#666', marginTop: '5px' }}>
+                  Password must be at least 6 characters
+                </small>
+              </div>
+
               {!otpSent && (
                 <button
                   type="button"
                   onClick={handleSendOTP}
-                  disabled={loading || !formData.email}
+                  disabled={loading || !formData.email || !formData.password || formData.password.length < 6}
                 >
-                  {loading ? "Sending OTP..." : "Send Verification Code"}
+                  {loading ? "Creating Account..." : "Create Account & Send OTP"}
                 </button>
               )}
 
@@ -229,7 +283,7 @@ function Register() {
 
                   <button
                     type="button"
-                    onClick={handleSendOTP}
+                    onClick={handleResendOTP}
                     disabled={loading}
                     style={{
                       background: 'transparent',
@@ -305,34 +359,30 @@ function Register() {
             </div>
           )}
 
-          {/* Step 5: Password Creation */}
+          {/* Step 5: Registration Complete */}
           {step === 5 && (
             <div className="form-step">
-              <div className="input-group">
-                <label htmlFor="password">Password *</label>
-                <input
-                  type="password"
-                  id="password"
-                  name="password"
-                  placeholder="Create a secure password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  required
-                  minLength="6"
-                />
-              </div>
-
-              <div className="input-group">
-                <label htmlFor="confirmPassword">Confirm Password *</label>
-                <input
-                  type="password"
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  placeholder="Confirm your password"
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  required
-                />
+              <div className="registration-summary">
+                <h3>Registration Summary</h3>
+                <div className="summary-item">
+                  <strong>Name:</strong> {formData.firstName} {formData.lastName}
+                </div>
+                <div className="summary-item">
+                  <strong>Email:</strong> {formData.email}
+                </div>
+                <div className="summary-item">
+                  <strong>Role:</strong> {formData.role}
+                </div>
+                {formData.gender && (
+                  <div className="summary-item">
+                    <strong>Gender:</strong> {formData.gender}
+                  </div>
+                )}
+                {formData.nrc && (
+                  <div className="summary-item">
+                    <strong>NRC:</strong> {formData.nrc}
+                  </div>
+                )}
               </div>
 
               <div className="step-actions">
@@ -342,16 +392,22 @@ function Register() {
                 <button
                   type="button"
                   onClick={() => {
-                    if (formData.password !== formData.confirmPassword) {
-                      setMessage("Passwords do not match!");
-                      return;
-                    }
-                    if (formData.password.length < 6) {
-                      setMessage("Password must be at least 6 characters!");
-                      return;
-                    }
-                    setMessage("✅ Registration complete! Redirecting to login...");
-                    setTimeout(() => navigate("/login"), 2000);
+                    setMessage("✅ Registration complete! Redirecting...");
+                    setTimeout(() => {
+                      switch (formData.role) {
+                        case 'farmer':
+                          navigate('/farmer-dashboard');
+                          break;
+                        case 'buyer':
+                          navigate('/marketplace');
+                          break;
+                        case 'admin':
+                          navigate('/admin');
+                          break;
+                        default:
+                          navigate('/login');
+                      }
+                    }, 2000);
                   }}
                   disabled={loading}
                 >

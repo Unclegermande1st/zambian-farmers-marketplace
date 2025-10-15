@@ -1,9 +1,12 @@
 /* Container and Layout */
 .register-container {
   display: flex;
+  align-items: center;
+  justify-content: center;
   min-height: 100vh;
-  background: url('../assets/farm-background.jpg') no-repeat center center/cover;
+  background: url('../assets/workingon farm.webp') no-repeat center center/cover;
   position: relative;
+  padding: 20px;
 }
 
 /* Overlay for readability */
@@ -19,15 +22,7 @@
 }
 
 .register-left {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  color: white;
-  padding: 40px;
-  position: relative;
-  z-index: 1;
+  display: none;
 }
 
 .register-left h1 {
@@ -44,13 +39,13 @@
 }
 
 .register-right {
-  flex: 1;
-  background-color: white;
-  padding: 40px 60px;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+  width: 100%;
+  max-width: 500px;
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(20px);
+  padding: 40px;
+  border-radius: 20px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
   position: relative;
   z-index: 1;
 }
@@ -68,7 +63,7 @@
 
 .register-subtitle span {
   font-weight: bold;
-  color: #667eea;
+  color: #10b981;
 }
 
 /* Alerts */
@@ -127,8 +122,8 @@
 .input-group input:focus,
 .input-group select:focus {
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  border-color: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
 }
 
 .gender-options {
@@ -158,26 +153,31 @@ button[type="submit"],
 button[type="button"] {
   width: 100%;
   padding: 14px;
-  background-color: #667eea;
+  background: linear-gradient(135deg, #10b981, #059669);
   color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: 12px;
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: all 0.3s ease;
   margin-top: 10px;
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
 }
 
 button[type="submit"]:hover,
 button[type="button"]:hover {
-  background-color: #5568d3;
+  background: linear-gradient(135deg, #059669, #047857);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
 }
 
 button[type="submit"]:disabled,
 button[type="button"]:disabled {
-  background-color: #cbd5e0;
+  background: #cbd5e0;
   cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 /* Social Login & Divider */
@@ -225,9 +225,32 @@ button[type="button"]:disabled {
   box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
 
-.social-btn.facebook { color: #1877f2; }
-.social-btn.google { color: #ea4335; }
-.social-btn.twitter { color: #1da1f2; }
+.social-btn.facebook { 
+  color: #1877f2; 
+}
+
+.social-btn.facebook:hover {
+  border-color: #1877f2;
+  color: #1877f2;
+}
+
+.social-btn.google { 
+  color: #ea4335; 
+}
+
+.social-btn.google:hover {
+  border-color: #ea4335;
+  color: #ea4335;
+}
+
+.social-btn.twitter { 
+  color: #1da1f2; 
+}
+
+.social-btn.twitter:hover {
+  border-color: #1da1f2;
+  color: #1da1f2;
+}
 
 .login-link {
   text-align: center;
@@ -237,7 +260,7 @@ button[type="button"]:disabled {
 }
 
 .login-link a {
-  color: #667eea;
+  color: #10b981;
   font-weight: 600;
   text-decoration: none;
 }
@@ -247,6 +270,52 @@ button[type="button"]:disabled {
 }
 
 /* Media Queries */
+/* Registration Summary Styles */
+.registration-summary {
+  background: linear-gradient(135deg, #f0fdf4, #ecfdf5);
+  border-radius: 16px;
+  padding: 25px;
+  margin-bottom: 25px;
+  border: 1px solid rgba(16, 185, 129, 0.1);
+  box-shadow: 0 8px 20px rgba(16, 185, 129, 0.1);
+}
+
+.registration-summary h3 {
+  color: #1f2937;
+  margin-bottom: 20px;
+  font-size: 20px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #10b981, #059669);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(16, 185, 129, 0.1);
+  transition: all 0.3s ease;
+}
+
+.summary-item:hover {
+  background: rgba(16, 185, 129, 0.05);
+  margin: 0 -10px;
+  padding: 12px 10px;
+  border-radius: 8px;
+}
+
+.summary-item:last-child {
+  border-bottom: none;
+}
+
+.summary-item strong {
+  color: #374151;
+  min-width: 80px;
+  font-weight: 600;
+}
+
 @media (max-width: 768px) {
   .register-container { flex-direction: column; }
 
