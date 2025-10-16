@@ -153,9 +153,10 @@
   box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
 }
 
+/* ✅ FIXED: Password toggle button - reduced icon size */
 .password-toggle {
   position: absolute;
-  right: 12px;
+  right: 16px;
   top: 50%;
   transform: translateY(-50%);
   background: none;
@@ -163,16 +164,20 @@
   cursor: pointer;
   color: rgba(255, 255, 255, 0.7);
   transition: color 0.3s ease;
-  padding: 2px;
+  padding: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 20px;
-  height: 20px;
 }
 
 .password-toggle:hover {
   color: #ffffff;
+}
+
+/* ✅ FIXED: Password toggle SVG icon size */
+.password-toggle svg {
+  width: 18px;
+  height: 18px;
 }
 
 .form-options {
@@ -312,25 +317,26 @@
 .social-login {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  gap: 10px;
   margin-bottom: 24px;
 }
 
+/* ✅ FIXED: Social buttons - more compact */
 .social-btn {
-  padding: 8px 12px;
+  padding: 10px 14px;
   border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
   color: #ffffff;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 8px;
 }
 
 .social-btn:hover {
@@ -338,6 +344,13 @@
   background: rgba(255, 255, 255, 0.2);
   transform: translateY(-1px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* ✅ FIXED: Social button SVG icons - reduced size */
+.social-btn svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
 }
 
 .social-btn.google:hover {
@@ -400,12 +413,12 @@
   
   .social-login {
     grid-template-columns: 1fr;
-    gap: 6px;
+    gap: 8px;
   }
   
   .social-btn {
-    padding: 10px 12px;
-    font-size: 13px;
+    padding: 12px 14px;
+    font-size: 14px;
   }
   
   .form-options {
