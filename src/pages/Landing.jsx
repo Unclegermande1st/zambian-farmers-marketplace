@@ -272,7 +272,7 @@ function Landing() {
             <div className="footer-brand">
               <div className="logo">
                 <span className="logo-icon">🌾</span>
-                <span className="logo-text">AgroMarket+</span>
+                <span className="logo-text">AgroMarket</span>
               </div>
               <p>Connecting farmers and buyers across Zambia</p>
             </div>

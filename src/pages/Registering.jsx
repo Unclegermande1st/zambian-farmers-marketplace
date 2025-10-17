@@ -99,7 +99,7 @@ function Register() {
     try {
       const email = localStorage.getItem("pendingEmail");
       await authAPI.verifyOTP(email, otp);
-      setMessage("✅ Verification successful! Redirecting...");
+      setMessage(" Verification successful! ");
       localStorage.removeItem("pendingEmail");
       
       // Redirect based on role
@@ -138,7 +138,7 @@ function Register() {
       <div className="register-right">
         <h2>Create Account</h2>
         <p className="register-subtitle">
-          Step {step} of 5 • Sign up to <span>SmartAgri</span>
+          Step {step} of 5 • Sign up to <span>SmartAgro</span>
         </p>
 
         {message && (
@@ -158,7 +158,7 @@ function Register() {
           {step === 1 && (
             <div className="form-step">
               <div className="input-group">
-                <label htmlFor="firstName">First Name *</label>
+                <label htmlFor="firstName">First Name </label>
                 <input
                   type="text"
                   id="firstName"
@@ -171,7 +171,7 @@ function Register() {
               </div>
 
               <div className="input-group">
-                <label htmlFor="lastName">Last Name *</label>
+                <label htmlFor="lastName">Last Name </label>
                 <input
                   type="text"
                   id="lastName"
@@ -196,10 +196,11 @@ function Register() {
               </div>
 
               <div className="input-group">
-                <label>I am a: *</label>
+                <label>I am a: </label>
                 <select name="role" value={formData.role} onChange={handleChange} required>
                   <option value="farmer">Farmer</option>
                   <option value="buyer">Buyer</option>
+                  <option value="buyer">Admin</option>
                 </select>
               </div>
 
@@ -213,7 +214,7 @@ function Register() {
           {step === 2 && (
             <div className="form-step">
               <div className="input-group">
-                <label htmlFor="email">Email Address *</label>
+                <label htmlFor="email">Email Address </label>
                 <input
                   type="email"
                   id="email"
@@ -227,7 +228,7 @@ function Register() {
               </div>
 
               <div className="input-group">
-                <label htmlFor="password">Password *</label>
+                <label htmlFor="password">Password </label>
                 <input
                   type="password"
                   id="password"
@@ -257,7 +258,7 @@ function Register() {
               {otpSent && (
                 <>
                   <div className="input-group">
-                    <label htmlFor="otp">Enter OTP Code *</label>
+                    <label htmlFor="otp">Enter OTP Code </label>
                     <input
                       type="text"
                       id="otp"
@@ -392,7 +393,7 @@ function Register() {
                 <button
                   type="button"
                   onClick={() => {
-                    setMessage("✅ Registration complete! Redirecting...");
+                    setMessage("✅ Registration complete! ");
                     setTimeout(() => {
                       switch (formData.role) {
                         case 'farmer':
@@ -417,19 +418,9 @@ function Register() {
             </div>
           )}
         </form>
-
         {step === 1 && (
           <>
-            <div className="divider">
-              <span>Or sign up with</span>
-            </div>
-
-            <div className="social-login">
-              <button className="social-btn facebook" type="button">Facebook</button>
-              <button className="social-btn google" type="button">Google</button>
-              <button className="social-btn twitter" type="button">Twitter</button>
-            </div>
-
+            
             <div className="login-link">
               Already have an account? <a href="/login">Sign In</a>
             </div>
