@@ -164,13 +164,13 @@ const Chats = () => {
       {/* Conversations List */}
       <div className="w-80 bg-white border-r overflow-y-auto">
         <div className="p-4 border-b bg-green-600 text-white">
-          <h2 className="text-xl font-bold">💬 Messages</h2>
+          <h2 className="text-xl font-bold">Messages</h2>
           <p className="text-sm opacity-90">{conversations.length} conversations</p>
         </div>
 
         {conversations.length === 0 ? (
           <div className="p-8 text-center text-gray-500">
-            <div className="text-4xl mb-2">📭</div>
+            <div className="mb-2 flex justify-center"><svg className="w-10 h-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></div>
             <p>No messages yet</p>
             <p className="text-sm mt-2">Start chatting with farmers or buyers!</p>
           </div>
@@ -186,7 +186,7 @@ const Chats = () => {
               >
                 <div className="flex items-start gap-3">
                   <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-                    <span className="text-lg">👤</span>
+                    <svg className="w-6 h-6 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex justify-between items-start mb-1">
@@ -220,7 +220,7 @@ const Chats = () => {
             {/* Chat Header */}
             <div className="bg-white border-b p-4 flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
-                <span>👤</span>
+                <svg className="w-5 h-5 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
               </div>
               <div>
                 <h3 className="font-bold text-gray-800">{selectedUser.name}</h3>
@@ -290,7 +290,7 @@ const Chats = () => {
                       Sending...
                     </>
                   ) : (
-                    <>📤 Send</>
+                    <>Send</>
                   )}
                 </button>
               </div>
@@ -299,7 +299,7 @@ const Chats = () => {
         ) : (
           <div className="flex-1 flex items-center justify-center text-gray-500">
             <div className="text-center">
-              <div className="text-6xl mb-4">💬</div>
+              <div className="mb-4 flex justify-center"><svg className="w-12 h-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h6m-2 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/></svg></div>
               <p className="text-xl">Select a conversation to start chatting</p>
             </div>
           </div>

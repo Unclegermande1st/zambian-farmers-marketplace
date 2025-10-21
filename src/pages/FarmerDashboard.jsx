@@ -191,7 +191,7 @@ const FarmerDashboard = () => {
         <div className="flex justify-between items-center mb-6">
           <div>
             <h1 className="text-3xl font-bold">Farmer Dashboard</h1>
-            <p className="text-gray-600">Welcome back, {user?.name} 🌾</p>
+          <p className="text-gray-600">Welcome back, {user?.name}</p>
           </div>
           <button
             onClick={() => {
@@ -209,10 +209,10 @@ const FarmerDashboard = () => {
         <div className="bg-white rounded-lg shadow mb-6">
           <div className="flex border-b overflow-x-auto">
             {[
-              { id: 'overview', label: '📊 Overview' },
-              { id: 'products', label: `📦 Products (${products.length})` },
-              { id: 'orders', label: `🛒 Orders (${orders.length})` },
-              { id: 'analytics', label: '📈 Analytics' }
+              { id: 'overview', label: 'Overview' },
+              { id: 'products', label: `Products (${products.length})` },
+              { id: 'orders', label: `Orders (${orders.length})` },
+              { id: 'analytics', label: 'Analytics' }
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -416,7 +416,7 @@ const FarmerDashboard = () => {
                                 : 'text-gray-500'
                             }`}
                           >
-                            {product.quantity}kg {product.quantity < 10 && '⚠️'}
+                            {product.quantity}kg {product.quantity < 10 && '(low)'}
                           </span>
                         </div>
                         <div className="mt-3 flex gap-2">
@@ -447,7 +447,7 @@ const FarmerDashboard = () => {
               <h2 className="text-xl font-bold mb-4">Order Management</h2>
               {orders.length === 0 ? (
                 <div className="text-center py-12 text-gray-500">
-                  <div className="text-4xl mb-2">📦</div>
+                  <div className="mb-2 flex justify-center"><svg className="w-10 h-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0v6a2 2 0 01-1 1.732l-7 4.041a2 2 0 01-2 0l-7-4.041A2 2 0 014 13V7m16 0l-8 4m-8-4l8 4"/></svg></div>
                   <p>No orders yet</p>
                 </div>
               ) : (
@@ -576,7 +576,7 @@ const FarmerDashboard = () => {
               {/* Low Stock Alert */}
               {stats.lowStockItems > 0 && (
                 <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
-                  <h3 className="font-bold text-orange-800 mb-2">⚠️ Low Stock Alert</h3>
+                  <h3 className="font-bold text-orange-800 mb-2">Low Stock Alert</h3>
                   <p className="text-sm text-orange-700">
                     You have {stats.lowStockItems} product(s) with less than 10kg in stock.
                   </p>

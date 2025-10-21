@@ -1,6 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import '../styles/landing.css';
+import farmBackground from '../assets/farm-background.jpg';
+
 
 function Landing() {
   return (
@@ -28,56 +30,66 @@ function Landing() {
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <section id="home" className="hero-section">
-        <div className="hero-background">
-          <div className="hero-overlay"></div>
-        </div>
-        
-        <div className="hero-content">
-          <div className="hero-text">
-            <h1 className="hero-title">
-              Welcome to <span className="highlight">AgroMarket+</span>
-            </h1>
-            <h2 className="hero-subtitle">
-              Bringing fresh farm produce closer to you
-            </h2>
-            <p className="hero-description">
-              Connect directly with local farmers and enjoy fresh, organic produce delivered to your doorstep. 
-              Experience seamless transactions and support sustainable agriculture in Zambia.
-            </p>
-            
-            <div className="hero-buttons">
-              <Link to="/register" className="btn btn-primary">
-                Get Started
-              </Link>
-              <Link to="/login" className="btn btn-secondary">
-                Sign In
-              </Link>
-            </div>
+     {/* Hero Section */}
+<section
+  id="home"
+  className="hero-section"
+  style={{
+    backgroundImage: `url(${farmBackground})`,
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    backgroundRepeat: "no-repeat",
+    backgroundAttachment: "fixed"
+  }}
+>
+  <div className="hero-background">
+    <div className="hero-overlay"></div>
+  </div>
+  
+  <div className="hero-content">
+    <div className="hero-text">
+      <h1 className="hero-title">
+        Welcome to <span className="highlight">AgroMarket+</span>
+      </h1>
+      <h2 className="hero-subtitle">
+        Bringing fresh farm produce closer to you
+      </h2>
+      <p className="hero-description">
+        Connect directly with local farmers and enjoy fresh, organic produce delivered to your doorstep. 
+        Experience seamless transactions and support sustainable agriculture in Zambia.
+      </p>
+      
+      <div className="hero-buttons">
+        <Link to="/register" className="btn btn-primary">
+          Get Started
+        </Link>
+        <Link to="/login" className="btn btn-secondary">
+          Sign In
+        </Link>
+      </div>
 
-            <div className="hero-stats">
-              <div className="stat">
-                <span className="stat-number">500+</span>
-                <span className="stat-label">Farmers</span>
-              </div>
-              <div className="stat">
-                <span className="stat-number">1000+</span>
-                <span className="stat-label">Products</span>
-              </div>
-              <div className="stat">
-                <span className="stat-number">24/7</span>
-                <span className="stat-label">Support</span>
-              </div>
-            </div>
-          </div>
+      <div className="hero-stats">
+        <div className="stat">
+          <span className="stat-number">500+</span>
+          <span className="stat-label">Farmers</span>
         </div>
-        
-        <div className="scroll-indicator">
-          <div className="scroll-arrow">↓</div>
-          <span>Scroll to explore</span>
+        <div className="stat">
+          <span className="stat-number">1000+</span>
+          <span className="stat-label">Products</span>
         </div>
-      </section>
+        <div className="stat">
+          <span className="stat-number">24/7</span>
+          <span className="stat-label">Support</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div className="scroll-indicator">
+    <div className="scroll-arrow">↓</div>
+    <span>Scroll to explore</span>
+  </div>
+</section>
 
       {/* Features Section */}
       <section id="features" className="features-section">

@@ -34,32 +34,61 @@ function Register() {
     });
   };
 
-  // Send OTP to email (this will register the user and send OTP)
+  // Send OTP by registering the user (backend creates pending user and emails OTP)
   const handleSendOTP = async () => {
-    if (!formData.email || !formData.password) {
-      setMessage("Please enter your email and password");
+    if (!formData.firstName || !formData.lastName) {
+      setMessage("Please enter your first and last name");
       return;
     }
-
+    if (!formData.email) {
+      setMessage("Please enter your email");
+      return;
+    }
+    if (!formData.password || formData.password.length < 6) {
+      setMessage("Password must be at least 6 characters");
+      return;
+    }
+    if (formData.password !== formData.confirmPassword) {
+      setMessage("Passwords do not match");
+      return;
+    }
     setLoading(true);
     setMessage("");
     try {
-      const fullName = `${formData.firstName} ${formData.lastName}`;
+      const fullName = `${formData.firstName} ${formData.lastName}`.trim();
       const res = await authAPI.register({
         name: fullName,
         email: formData.email,
         password: formData.password,
         role: formData.role,
-        phone: formData.phone || "", // Add phone if available
+        phone: formData.phone || "",
       });
-
       localStorage.setItem("pendingEmail", formData.email);
-      setMessage(res.data.message || "Registration successful! OTP sent to your email.");
+      if (res.data.devOTP) {
+        setMessage(`Registration started. Email failed in dev. Use OTP: ${res.data.devOTP}`);
+        setOtp(res.data.devOTP);
+      } else {
+        setMessage(res.data.message || "Registration started. OTP sent to your email.");
+      }
       setOtpSent(true);
-      console.log("Registration response:", res.data);
+      setStep(2);
     } catch (err) {
-      console.error("Registration error:", err);
-      setMessage(err.response?.data?.error || "Failed to register. Please try again.");
+      console.error("Registration/OTP error:", err);
+      const status = err.response?.status;
+      const errorMsg = err.response?.data?.error || "Failed to start registration. Please try again.";
+      // Fallback: If user already exists but is unverified, try resending OTP
+      if (status === 409 || /exists/i.test(errorMsg)) {
+        try {
+          const re = await authAPI.resendOTP(formData.email);
+          localStorage.setItem("pendingEmail", formData.email);
+          setMessage(re.data.message || "OTP resent to your email.");
+          setOtpSent(true);
+        } catch (reErr) {
+          setMessage(reErr.response?.data?.error || errorMsg);
+        }
+      } else {
+        setMessage(errorMsg);
+      }
     } finally {
       setLoading(false);
     }
@@ -77,8 +106,12 @@ function Register() {
     setMessage("");
     try {
       const res = await authAPI.resendOTP(email);
-      setMessage(res.data.message || "OTP resent to your email!");
-      console.log("Resend OTP response:", res.data);
+      if (res.data.devOTP) {
+        setMessage(`Email failed in dev. Use OTP: ${res.data.devOTP}`);
+        setOtp(res.data.devOTP);
+      } else {
+        setMessage(res.data.message || "OTP resent to your email!");
+      }
     } catch (err) {
       console.error("Resend OTP error:", err);
       setMessage(err.response?.data?.error || "Failed to resend OTP. Please try again.");
@@ -87,7 +120,7 @@ function Register() {
     }
   };
 
-  // Verify OTP
+  // Verify OTP (does not create account yet)
   const handleOTPVerify = async () => {
     if (!otp) {
       setMessage("Please enter the OTP");
@@ -97,27 +130,12 @@ function Register() {
     setLoading(true);
     setMessage("");
     try {
-      const email = localStorage.getItem("pendingEmail");
+      const email = localStorage.getItem("pendingEmail") || formData.email;
       await authAPI.verifyOTP(email, otp);
-      setMessage(" Verification successful! ");
+      setMessage(" OTP verified! Continue to finalize registration. ");
       localStorage.removeItem("pendingEmail");
-      
-      // Redirect based on role
-      setTimeout(() => {
-        switch (formData.role) {
-          case 'farmer':
-            navigate('/farmer-dashboard');
-            break;
-          case 'buyer':
-            navigate('/marketplace');
-            break;
-          case 'admin':
-            navigate('/admin');
-            break;
-          default:
-            navigate('/login');
-        }
-      }, 2000);
+      // Move forward to remaining steps
+      setStep(3);
     } catch (err) {
       setMessage(err.response?.data?.error || "Invalid or expired OTP. Please try again.");
     } finally {
@@ -200,7 +218,7 @@ function Register() {
                 <select name="role" value={formData.role} onChange={handleChange} required>
                   <option value="farmer">Farmer</option>
                   <option value="buyer">Buyer</option>
-                  <option value="buyer">Admin</option>
+                  <option value="admin">Admin</option>
                 </select>
               </div>
 
@@ -244,6 +262,22 @@ function Register() {
                   Password must be at least 6 characters
                 </small>
               </div>
+
+              {!otpSent && (
+                <div className="input-group">
+                  <label htmlFor="confirmPassword">Confirm Password </label>
+                  <input
+                    type="password"
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    placeholder="Re-enter your password"
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
+                    required
+                    minLength="6"
+                  />
+                </div>
+              )}
 
               {!otpSent && (
                 <button
@@ -393,7 +427,7 @@ function Register() {
                 <button
                   type="button"
                   onClick={() => {
-                    setMessage("✅ Registration complete! ");
+                    setMessage('Registration complete!');
                     setTimeout(() => {
                       switch (formData.role) {
                         case 'farmer':
@@ -408,7 +442,7 @@ function Register() {
                         default:
                           navigate('/login');
                       }
-                    }, 2000);
+                    }, 800);
                   }}
                   disabled={loading}
                 >

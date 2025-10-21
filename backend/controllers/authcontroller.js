@@ -79,13 +79,15 @@ exports.register = async (req, res) => {
     }
 
     // Return response with appropriate message
+    const isProduction = process.env.NODE_ENV === 'production';
     res.status(201).json({
-      message: emailSent 
+      message: emailSent
         ? "Registration successful. Check your email for OTP."
-        : "Registration successful. OTP generation failed - check server logs.",
+        : "Registration successful. OTP email failed. Use the code from server logs.",
       userId,
-      ...(process.env.NODE_ENV === 'development' && !emailSent && { devOTP: otp }), // Only in dev mode
-      ...(emailError && { emailError: "Email delivery failed. Contact support if needed." })
+      // Provide dev fallback OTP when email couldn't be sent (non-production only)
+      ...(!emailSent && !isProduction ? { devOTP: otp } : {}),
+      ...(emailError && { emailError: "Email delivery failed. Check EMAIL_USER/EMAIL_PASS or use devOTP locally." })
     });
 
   } catch (err) {
@@ -243,14 +245,14 @@ exports.resendOTP = async (req, res) => {
     try {
       await sendOTP(email, otp);
       console.log(`✅ OTP resent to ${email}`);
-      
       res.json({ message: "OTP has been resent to your email" });
     } catch (emailErr) {
       console.warn(`⚠️ Failed to resend OTP email:`, emailErr.message);
-      
-      res.status(500).json({ 
-        error: "Failed to send OTP email",
-        details: process.env.NODE_ENV === 'development' ? otp : undefined
+      const isProduction = process.env.NODE_ENV === 'production';
+      // In non-production, include OTP so user can proceed
+      res.status(200).json({ 
+        message: "OTP email failed. Use the code provided to verify.",
+        ...(!isProduction ? { devOTP: otp } : {})
       });
     }
 

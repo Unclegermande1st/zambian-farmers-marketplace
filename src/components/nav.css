@@ -1,0 +1,201 @@
+/* ========== Navbar Base ========== */
+.navbar {
+  position: fixed;
+  width: 100%;
+  top: 0;
+  z-index: 50;
+  background: linear-gradient(to right, #228b22, #007f5f);
+  transition: all 0.3s ease-in-out;
+  box-shadow: none;
+}
+
+.navbar-scrolled {
+  background: linear-gradient(to right, #1e6f1e, #00724f);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Container */
+.navbar-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0.75rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Logo */
+.navbar-logo {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #fff;
+  text-decoration: none;
+}
+
+.navbar-logo span {
+  color: #ffcc33;
+}
+
+/* ========== Desktop Menu ========== */
+.navbar-links {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.navbar-links a {
+  color: #fff;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease-in-out;
+}
+
+.navbar-links a:hover {
+  color: #ffcc33;
+}
+
+/* Cart */
+.cart-icon {
+  position: relative;
+  color: #fff;
+}
+
+.cart-count {
+  position: absolute;
+  top: -6px;
+  right: -10px;
+  background: #ffcc33;
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: bold;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* User Dropdown */
+.user-dropdown {
+  position: relative;
+}
+
+.user-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: none;
+  border: none;
+  color: #fff;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.user-btn:hover {
+  color: #ffcc33;
+}
+
+.dropdown-menu {
+  position: absolute;
+  right: 0;
+  top: 2.5rem;
+  background: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+}
+
+.dropdown-menu button {
+  display: block;
+  width: 100%;
+  padding: 10px 14px;
+  background: none;
+  border: none;
+  color: #333;
+  text-align: left;
+  cursor: pointer;
+}
+
+.dropdown-menu button:hover {
+  background: #f3f3f3;
+}
+
+/* Auth Links */
+.auth-links {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.auth-links a {
+  color: #fff;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.auth-links a:hover {
+  color: #ffcc33;
+}
+
+.register-btn {
+  background: #ffcc33;
+  color: #145a32;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: background 0.3s;
+}
+
+.register-btn:hover {
+  background: #ffd84f;
+}
+
+/* ========== Mobile Menu ========== */
+.menu-toggle {
+  background: none;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  display: none;
+}
+
+.mobile-menu {
+  display: none;
+  flex-direction: column;
+  background: #1e6f1e;
+  padding: 1rem;
+  border-radius: 0 0 10px 10px;
+}
+
+.mobile-menu a,
+.mobile-menu button {
+  color: #fff;
+  padding: 10px;
+  text-decoration: none;
+  border: none;
+  background: none;
+  text-align: left;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.mobile-menu a:hover,
+.mobile-menu button:hover {
+  color: #ffcc33;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .navbar-links {
+    display: none;
+  }
+
+  .menu-toggle {
+    display: block;
+  }
+
+  .mobile-menu {
+    display: flex;
+  }
+}

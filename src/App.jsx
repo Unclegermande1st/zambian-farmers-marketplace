@@ -20,8 +20,10 @@ import PaymentSuccess from './pages/PaymentSuccess';
 import Cart from './pages/Cart';
 import AdminDashboard from './pages/AdminDashboard';
 import AssistantChat from './pages/AssistantChat';
+import Profile from './pages/Profile';
 import FarmerDashboard from './pages/FarmerDashboard';
 import Marketplace from './pages/Marketplace';
+import OrderHistory from './pages/OrderHistory';
 
 function App() {
   return (
@@ -35,6 +37,7 @@ function App() {
               <Route path="/login" element={<LoginForm />} />
               <Route path="/register" element={<Register />} />
               <Route path="/articles" element={<Articles />} />
+              {/* Fallback for root to go to home if logged in via redirect component could be added later */}
 
               {/* Protected Routes with Navbar */}
               <Route
@@ -82,6 +85,17 @@ function App() {
                 }
               />
               <Route
+                path="/orders"
+                element={
+                  <ProtectedRoute>
+                    <>
+                      <Navbar />
+                      <OrderHistory />
+                    </>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
                 path="/payment-success"
                 element={
                   <ProtectedRoute>
@@ -112,6 +126,18 @@ function App() {
                     <>
                       <Navbar />
                       <Dashboard />
+                    </>
+                  </ProtectedRoute>
+                }
+              />
+              {/* Profile */}
+              <Route
+                path="/profile"
+                element={
+                  <ProtectedRoute>
+                    <>
+                      <Navbar />
+                      <Profile />
                     </>
                   </ProtectedRoute>
                 }

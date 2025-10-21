@@ -4,12 +4,12 @@ function Dashboard() {
   const [active, setActive] = useState("home");
 
   const menuItems = [
-    { id: "home", icon: "🏠", label: "Home" },
-    { id: "marketplace", icon: "🛒", label: "Marketplace" },
-    { id: "messages", icon: "💬", label: "Messages" },
-    { id: "activity", icon: "📊", label: "Activity" },
-    { id: "news", icon: "📰", label: "News" },
-    { id: "settings", icon: "⚙️", label: "Settings" },
+    { id: "home", icon: "", label: "Home" },
+    { id: "marketplace", icon: "", label: "Marketplace" },
+    { id: "messages", icon: "", label: "Messages" },
+    { id: "activity", icon: "", label: "Activity" },
+    { id: "news", icon: "", label: "News" },
+    { id: "settings", icon: "", label: "Settings" },
   ];
 
   return (
@@ -19,7 +19,7 @@ function Dashboard() {
         {/* Logo */}
         <div className="p-6 border-b border-green-700 flex items-center gap-3">
           <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center text-2xl">
-            🌾
+            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6l-2 4H6l3 3-1 5 4-2 4 2-1-5 3-3h-4l-2-4z"/></svg>
           </div>
           <h2 className="text-xl font-bold">AgroMarket+</h2>
         </div>
@@ -82,7 +82,7 @@ function Dashboard() {
           {/* Weather & Notifications */}
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2 bg-blue-50 px-4 py-2 rounded-xl border border-blue-100">
-              <span className="text-xl">☀️</span>
+              <svg className="w-5 h-5 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v2m0 14v2m9-9h-2M5 12H3m14.95 6.95l-1.414-1.414M7.05 7.05L5.636 5.636m12.728 0l-1.414 1.414M7.05 16.95l-1.414 1.414M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
               <div>
                 <p className="text-sm font-semibold text-gray-700">25°C</p>
                 <p className="text-xs text-gray-500">Sunny</p>
@@ -120,21 +120,21 @@ function Dashboard() {
         {/* Cards Section */}
         <div className="grid md:grid-cols-3 gap-6">
           <div className="bg-white rounded-2xl shadow-md p-6 border border-gray-100 hover:shadow-lg transition-all">
-            <h3 className="font-semibold text-gray-800 mb-2">🌱 Crop Insights</h3>
+            <h3 className="font-semibold text-gray-800 mb-2">Crop Insights</h3>
             <p className="text-gray-600 text-sm">
               Get personalized tips and weather forecasts for your crops.
             </p>
           </div>
 
           <div className="bg-white rounded-2xl shadow-md p-6 border border-gray-100 hover:shadow-lg transition-all">
-            <h3 className="font-semibold text-gray-800 mb-2">📦 Marketplace</h3>
+            <h3 className="font-semibold text-gray-800 mb-2">Marketplace</h3>
             <p className="text-gray-600 text-sm">
               Buy and sell agricultural products with verified farmers and buyers.
             </p>
           </div>
 
           <div className="bg-white rounded-2xl shadow-md p-6 border border-gray-100 hover:shadow-lg transition-all">
-            <h3 className="font-semibold text-gray-800 mb-2">📈 Analytics</h3>
+            <h3 className="font-semibold text-gray-800 mb-2">Analytics</h3>
             <p className="text-gray-600 text-sm">
               Track your sales, messages, and platform engagement in real time.
             </p>
@@ -143,7 +143,7 @@ function Dashboard() {
 
         {/* Chatbot Button */}
         <button className="fixed bottom-6 right-6 bg-green-600 hover:bg-green-700 text-white p-4 rounded-full shadow-lg transition-transform hover:scale-110">
-          🤖
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422A12.083 12.083 0 0112 21.5 12.083 12.083 0 015.84 10.578L12 14z"/></svg>
         </button>
       </main>
     </div>

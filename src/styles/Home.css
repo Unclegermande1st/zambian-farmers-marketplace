@@ -1,0 +1,257 @@
+/* src/styles/Home.css - Complete Styles for Home Page */
+
+/* Main container with colorful gradient background */
+.home-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #ecfdf5 0%, #f0fdfa 20%, #ffffff 40%, #eff6ff 60%, #dbeafe 80%, #e0e7ff 100%);
+  background-attachment: fixed;
+}
+
+/* Hero section with vibrant green gradient */
+.home-hero {
+  background: linear-gradient(135deg, #059669 0%, #10b981 50%, #34d399 100%);
+  position: relative;
+  overflow: hidden;
+  padding: 4rem 1rem;
+}
+
+.home-hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="10" cy="10" r="1.5" fill="white" opacity="0.1"/></svg>');
+  background-size: 30px 30px;
+  opacity: 0.5;
+  animation: float 20s linear infinite;
+}
+
+@keyframes float {
+  0% { transform: translate(0, 0); }
+  50% { transform: translate(10px, 10px); }
+  100% { transform: translate(0, 0); }
+}
+
+/* Products section card */
+.home-products-card {
+  background: linear-gradient(135deg, #ffffff 0%, #fefefe 100%);
+  box-shadow: 0 20px 40px rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.1);
+}
+
+/* Individual product card */
+.home-product-card {
+  background: #ffffff;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid #f3f4f6;
+}
+
+.home-product-card:hover {
+  background: linear-gradient(135deg, #ffffff 0%, #fafafa 100%);
+  box-shadow: 0 20px 40px rgba(16, 185, 129, 0.15);
+  border-color: #d1fae5;
+}
+
+/* Product image placeholder with colorful gradient */
+.home-product-placeholder {
+  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 50%, #a7f3d0 100%);
+}
+
+/* Stats cards with individual colorful backgrounds */
+.home-stat-card-green {
+  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+  border: 1px solid #a7f3d0;
+  position: relative;
+  overflow: hidden;
+}
+
+.home-stat-card-green::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #10b981, #059669);
+}
+
+.home-stat-card-green:hover {
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+  box-shadow: 0 20px 40px rgba(16, 185, 129, 0.25);
+}
+
+.home-stat-card-blue {
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+  border: 1px solid #93c5fd;
+  position: relative;
+  overflow: hidden;
+}
+
+.home-stat-card-blue::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #3b82f6, #2563eb);
+}
+
+.home-stat-card-blue:hover {
+  background: linear-gradient(135deg, #bfdbfe 0%, #93c5fd 100%);
+  box-shadow: 0 20px 40px rgba(59, 130, 246, 0.25);
+}
+
+.home-stat-card-purple {
+  background: linear-gradient(135deg, #e9d5ff 0%, #d8b4fe 100%);
+  border: 1px solid #c084fc;
+  position: relative;
+  overflow: hidden;
+}
+
+.home-stat-card-purple::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #a855f7, #9333ea);
+}
+
+.home-stat-card-purple:hover {
+  background: linear-gradient(135deg, #d8b4fe 0%, #c084fc 100%);
+  box-shadow: 0 20px 40px rgba(168, 85, 247, 0.25);
+}
+
+/* Empty state with colorful gradient */
+.home-empty-state {
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #bbf7d0 100%);
+  border: 2px dashed #86efac;
+}
+
+/* Badge styles */
+.home-badge-live {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.1));
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  animation: pulse-badge 2s infinite;
+}
+
+@keyframes pulse-badge {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.9; transform: scale(1.02); }
+}
+
+.home-badge-featured {
+  background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+  border: 1px solid #6ee7b7;
+}
+
+/* Category badge on product cards */
+.home-category-badge {
+  background: linear-gradient(135deg, #10b981, #059669);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+}
+
+/* Stock status badges */
+.home-stock-in {
+  background: linear-gradient(135deg, rgba(209, 250, 229, 0.95), rgba(167, 243, 208, 0.95));
+  border: 1px solid #6ee7b7;
+  backdrop-filter: blur(10px);
+}
+
+.home-stock-low {
+  background: linear-gradient(135deg, rgba(254, 243, 199, 0.95), rgba(253, 224, 71, 0.95));
+  border: 1px solid #fbbf24;
+  backdrop-filter: blur(10px);
+}
+
+.home-stock-out {
+  background: linear-gradient(135deg, rgba(254, 226, 226, 0.95), rgba(252, 165, 165, 0.95));
+  border: 1px solid #f87171;
+  backdrop-filter: blur(10px);
+}
+
+/* Button styles */
+.home-btn-primary {
+  background: linear-gradient(135deg, #10b981, #059669);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  transition: all 0.3s ease;
+}
+
+.home-btn-primary:hover {
+  background: linear-gradient(135deg, #059669, #047857);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+  transform: translateY(-2px);
+}
+
+.home-btn-secondary {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+  backdrop-filter: blur(10px);
+  border: 2px solid white;
+  transition: all 0.3s ease;
+}
+
+.home-btn-secondary:hover {
+  background: white;
+  color: #10b981;
+  transform: translateY(-2px);
+}
+
+/* Loading state */
+.home-loading {
+  background: linear-gradient(135deg, #ecfdf5 0%, #f0fdfa 25%, #ffffff 50%, #eff6ff 75%, #dbeafe 100%);
+}
+
+/* Error state */
+.home-error {
+  background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 50%, #fecaca 100%);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .home-hero {
+    padding: 3rem 1rem;
+  }
+  
+  .home-products-card {
+    padding: 1.5rem 1rem;
+  }
+  
+  .home-stat-card-green,
+  .home-stat-card-blue,
+  .home-stat-card-purple {
+    margin-bottom: 1rem;
+  }
+}
+
+/* Smooth animations */
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.home-products-card,
+.home-product-card {
+  animation: slideInUp 0.6s ease-out;
+}
+
+/* Icon container styles */
+.home-icon-container {
+  transition: all 0.3s ease;
+}
+
+.home-stat-card-green:hover .home-icon-container,
+.home-stat-card-blue:hover .home-icon-container,
+.home-stat-card-purple:hover .home-icon-container {
+  transform: scale(1.1) rotate(5deg);
+}

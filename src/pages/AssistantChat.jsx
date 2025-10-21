@@ -38,7 +38,7 @@ const AssistantChat = () => {
     }
 
     if (msg.includes('help') || msg.includes('hello') || msg.includes('hi')) {
-      return "I can help you with:\n• Planting advice\n• Weather information\n• Crop recommendations\n• Pricing tips\n• Fertilizer guidance\n\nWhat would you like to know?";
+      return "I can help you with:\n- Planting advice\n- Weather information\n- Crop recommendations\n- Pricing tips\n- Fertilizer guidance\n\nWhat would you like to know?";
     }
 
     return "I'm not sure about that. Try asking about planting times, weather, crop care, or market prices!";
@@ -79,53 +79,40 @@ const AssistantChat = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="assistant-shell">
       {/* Header */}
-      <div className="bg-green-600 text-white p-4 shadow">
-        <h1 className="text-xl font-bold">🤖 SmartAgri Assistant</h1>
-        <p className="text-sm opacity-90">Ask me about farming, weather, and crops!</p>
+      <div className="assistant-head">
+        <h1 className="assistant-title">SmartAgri Assistant</h1>
+        <p className="assistant-sub">Ask me about farming, weather, and crops!</p>
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 max-w-4xl w-full mx-auto">
+      <div className="assistant-feed">
         {messages.map((msg) => (
-          <div
-            key={msg.id}
-            className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-          >
-            <div
-              className={`max-w-xs md:max-w-md rounded-lg p-4 ${
-                msg.sender === 'user'
-                  ? 'bg-green-600 text-white rounded-tr-none'
-                  : 'bg-white shadow rounded-tl-none'
-              }`}
-            >
+          <div key={msg.id} className={`assist-row ${msg.sender === 'user' ? 'end' : ''}`}>
+            <div className={`bubble ${msg.sender === 'user' ? 'user' : 'assistant'}`}>
               <p className="whitespace-pre-line">{msg.text}</p>
-              <p className={`text-xs mt-2 ${
-                msg.sender === 'user' ? 'text-green-100' : 'text-gray-500'
-              }`}>
-                {msg.timestamp}
-              </p>
+              <p className="bubble-time">{msg.timestamp}</p>
             </div>
           </div>
         ))}
       </div>
 
       {/* Input */}
-      <div className="bg-white border-t p-4 max-w-4xl w-full mx-auto">
-        <div className="flex gap-2">
+      <div className="assistant-inputbar">
+        <div className="assistant-inputwrap">
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyPress={handleKeyPress}
             placeholder="Ask me anything about farming..."
-            className="flex-1 border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+            className="assistant-text"
           />
           <button
             onClick={handleSend}
             disabled={!input.trim()}
-            className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 disabled:bg-gray-300"
+            className="assistant-send"
           >
             Send
           </button>
