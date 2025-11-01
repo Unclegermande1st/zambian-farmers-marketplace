@@ -145,7 +145,7 @@ const Checkout = () => {
                 style={{ marginRight: 12 }}
               />
               <div style={{ flex: 1 }}>
-                <div className="heading-lg" style={{ fontSize: 16 }}>💳 Credit/Debit Card (Stripe)</div>
+                <div className="heading-lg" style={{ fontSize: 16 }}> Credit/Debit Card (Stripe)</div>
                 <div className="small muted">Secure payment via Stripe</div>
               </div>
             </label>
@@ -160,7 +160,7 @@ const Checkout = () => {
                 style={{ marginRight: 12 }}
               />
               <div style={{ flex: 1 }}>
-                <div className="heading-lg" style={{ fontSize: 16 }}>🧪 Mock Payment (Testing)</div>
+                <div className="heading-lg" style={{ fontSize: 16 }}> Mock Payment (Testing purpose)</div>
                 <div className="small muted">For testing purposes only</div>
               </div>
             </label>
@@ -173,7 +173,7 @@ const Checkout = () => {
         </button>
 
         <p className="center small muted" style={{ marginTop: 12 }}>
-          🔐 Your payment information is secure and encrypted.
+           Your payment information is secure and encrypted.
         </p>
       </div>
     </div>

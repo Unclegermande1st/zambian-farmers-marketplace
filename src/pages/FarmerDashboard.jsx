@@ -244,7 +244,7 @@ const FarmerDashboard = () => {
                 </div>
                 <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
                   <p className="text-sm text-gray-600">Total Earnings</p>
-                  <p className="text-3xl font-bold text-purple-600">${stats.totalEarnings}</p>
+                  <p className="text-3xl font-bold text-purple-600">ZMW{stats.totalEarnings}</p>
                 </div>
                 <div className="bg-orange-50 p-4 rounded-lg border border-orange-200">
                   <p className="text-sm text-gray-600">Pending Orders</p>
@@ -297,7 +297,7 @@ const FarmerDashboard = () => {
                   <form onSubmit={handleSubmit}>
                     <div className="grid md:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium mb-1">Product Name *</label>
+                        <label className="block text-sm font-medium mb-1">Product Name </label>
                         <input
                           type="text"
                           name="title"
@@ -309,7 +309,7 @@ const FarmerDashboard = () => {
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium mb-1">Category *</label>
+                        <label className="block text-sm font-medium mb-1">Category </label>
                         <select
                           name="category"
                           value={formData.category}
@@ -326,7 +326,7 @@ const FarmerDashboard = () => {
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium mb-1">Quantity (kg) *</label>
+                        <label className="block text-sm font-medium mb-1">Quantity (kg) </label>
                         <input
                           type="number"
                           name="quantity"
@@ -339,7 +339,7 @@ const FarmerDashboard = () => {
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium mb-1">Price ($/kg) *</label>
+                        <label className="block text-sm font-medium mb-1">Price (ZMW/kg) *</label>
                         <input
                           type="number"
                           name="price"
